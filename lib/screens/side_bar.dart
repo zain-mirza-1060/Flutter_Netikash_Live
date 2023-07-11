@@ -7,6 +7,8 @@ import 'package:test/pages/bottom_nav.dart';
 import 'package:test/pages/my_order036.dart';
 import 'package:test/pages/setting_page040.dart';
 
+import '../pages/join_screen.dart';
+
 
 class SideBar{
   final String profile;
@@ -205,7 +207,7 @@ class ShowSideBar extends StatelessWidget {
                                       ),
                                       GestureDetector(
                                           onTap: (){
-                                            Navigator.push(context, MaterialPageRoute(builder: (context)=>streamer_profiles011()));
+                                            Navigator.push(context, MaterialPageRoute(builder: (context)=>JoinScreen()));
                                           },
                                           child: ShowSideButton(sideButton: sidebutton5)
                                       ),
