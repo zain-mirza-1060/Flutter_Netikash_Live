@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:test/pages/right_drawer.dart';
+//import 'package:test/pages/right_drawer.dart';
 
 void main() {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
 
       debugShowCheckedModeBanner: false,
       title: "Netikask Live",
-      home:  RightDrawer(),
+      //home:  RightDrawer(),
     );
   }
 }

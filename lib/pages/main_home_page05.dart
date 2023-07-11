@@ -176,7 +176,7 @@ class MainHomePage extends StatelessWidget {
                                       children: [
                                       ShowSellerProfile(sellerprofile:sellerprofile2),
                                       ShowSellerProfile(sellerprofile:sellerprofile3),
-                                      ShowSellerProfile(sellerprofile:sellerprofile4),
+                                      //ShowSellerProfile(sellerprofile:sellerprofile4),
                                       ShowSellerProfile(sellerprofile:sellerprofile1),
                                       ShowSellerProfile(sellerprofile:sellerprofile2),
                                       ShowSellerProfile(sellerprofile:sellerprofile1),
@@ -249,7 +249,7 @@ class MainHomePage extends StatelessWidget {
         ),
       drawer: Drawer(
         child: ShowSideBar(sidebar: sidebar),
-        width: 220,
+        width: 500,
       ),
     );
   }

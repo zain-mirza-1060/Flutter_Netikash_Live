@@ -110,6 +110,7 @@ class ProfilePage extends StatelessWidget {
             child: Center(
               child: Text(
                 'Add product',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: font2,
                   color: Colors.white,

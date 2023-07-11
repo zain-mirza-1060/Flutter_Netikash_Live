@@ -57,7 +57,7 @@ class ShowSideBar extends StatelessWidget {
     double font = size * MediaQuery.of(context).textScaleFactor;
     bool home=false;
     return Card(
-        elevation: 0,
+        elevation: 1,
         margin: EdgeInsets.all(0.0),
         child:ListView(
         children:[
