@@ -65,7 +65,7 @@ class ShowHomeProduct extends StatelessWidget {
                         )),
                     Container(
 
-                      child: Row(
+                      child: Column(
                         mainAxisAlignment:
                         MainAxisAlignment.center,
                         crossAxisAlignment:
@@ -122,7 +122,7 @@ class ShowHomeProduct extends StatelessWidget {
                               children: [
                                 Text('\$'+homeproduct.newprice,
                                     style: TextStyle(
-                                        fontSize: font4,
+                                        fontSize: font5,
                                         color: Color(0xFFE8C435),
                                         fontWeight:
                                         FontWeight.bold)),
@@ -160,7 +160,7 @@ class ShowHomeProduct extends StatelessWidget {
                       child: Expanded(
                           child: Align(
                               alignment: Alignment.center,
-                              child: Row(
+                              child: Column(
                                 mainAxisAlignment:
                                 MainAxisAlignment.center,
                                 crossAxisAlignment:

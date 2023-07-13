@@ -66,7 +66,7 @@ class ShowProfileProduct extends StatelessWidget {
                   children: [
                     Container(
                         height: screenHeight * 0.2408 * 0.356,//75
-                        width: screenWidth * 0.4458 * 0.8,  //10
+                        width: screenWidth * 0.4458 * 0.6,  //105
                         color: Colors.grey[200],
                         child: Padding(
                           padding: const EdgeInsets.only(left: 7.0),

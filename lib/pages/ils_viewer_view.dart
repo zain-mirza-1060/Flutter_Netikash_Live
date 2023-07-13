@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:test/pages/main_home_page05.dart';
 import 'package:videosdk/videosdk.dart';
 import './livestream_player.dart';
 
@@ -45,9 +46,13 @@ class _ILSViewerViewState extends State<ILSViewerView> {
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton(
-                  onPressed: () => {widget.room.leave()},
+                  onPressed: () {
+                    widget.room.leave();
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=> MainHomePage()));
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
+
                   ),
                   child: const Text("Leave"),
                 )

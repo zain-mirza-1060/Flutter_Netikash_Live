@@ -14,8 +14,6 @@ class MainHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
-    // double sellerrow = 100.0;
-    // double row1 = sellerrow * (screenHeight / 100);
       String profile_image = 'assets/images/profile1.jpg';
       String notifications= '3';
 
@@ -249,7 +247,7 @@ class MainHomePage extends StatelessWidget {
         ),
       drawer: Drawer(
         child: ShowSideBar(sidebar: sidebar),
-        width: 500,
+        width: screenWidth * 0.6,
       ),
     );
   }

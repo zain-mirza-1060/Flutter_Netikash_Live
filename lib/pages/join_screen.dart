@@ -54,7 +54,7 @@ class JoinScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('VideoSDK ILS QuickStart'),
+        title: const Text('Live Stream'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -64,7 +64,7 @@ class JoinScreen extends StatelessWidget {
             //Creating a new meeting
             ElevatedButton(
               onPressed: () => onCreateButtonPressed(context),
-              child: const Text('Create Meeting'),
+              child: const Text('Instant Meeting'),
             ),
             const SizedBox(height: 40),
             TextField(
@@ -79,7 +79,7 @@ class JoinScreen extends StatelessWidget {
             //Joining the meeting as host
             ElevatedButton(
               onPressed: () => onJoinButtonPressed(context, Mode.CONFERENCE),
-              child: const Text('Join Meeting as Host'),
+              child: const Text('Host Meeting '),
             ),
             //Joining the meeting as viewer
             ElevatedButton(
