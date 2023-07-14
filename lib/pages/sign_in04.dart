@@ -1,14 +1,34 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:test/pages/main_home_page05.dart';
 import 'package:test/pages/sign_up01.dart';
 import 'package:test/pages/bottom_nav.dart';
 
 
-class sign_in extends StatelessWidget{
+class sign_in extends StatefulWidget{
+  @override
+  State<sign_in> createState() => _sign_inState();
+}
+
+class _sign_inState extends State<sign_in> {
+  TextEditingController signinPhoneCont = TextEditingController();
+
+  Country selectedCountry = Country(
+      phoneCode: "92",
+      countryCode: "PK",
+      e164Sc: 0,
+      geographic: true,
+      level: 1,
+      name: "Pakistan",
+      example: "Pakistan",
+      displayName: "Pakistan",
+      displayNameNoCountryCode: "PAK",
+      e164Key: "");
+
   @override
   Widget build(BuildContext context) {
     bool _passwordVisible = false;
+    signinPhoneCont.selection= TextSelection.fromPosition(TextPosition(offset: signinPhoneCont.text.length));
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body:  Padding(
@@ -35,77 +55,86 @@ class sign_in extends StatelessWidget{
             SizedBox(height: 20),
             Row(
               children: [
-                Expanded(
-                  child: Container(
-                    height: 45,
-                    padding: EdgeInsets.only(right: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Color.fromRGBO(219, 185, 88, 1),
-                        width: 3,
-                      ),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        value: 'Option 1',
-                        items: [
-                          DropdownMenuItem<String>(
-                            value: 'Option 1',
-                            child: Text('Option 1'),
-                          ),
-                          DropdownMenuItem<String>(
-                            value: 'Option 2',
-                            child: Text('Option 2'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          // Handle dropdown value change
-                        },
-                        style: TextStyle(
+                Container(
+                  width: 120, // Adjust the width of the dropdown as needed
+                  height: 45,
+                  decoration: BoxDecoration(
+                    color: Color.fromRGBO(219, 185, 88, 1),
+                    borderRadius: BorderRadius.circular(5)
+                  ),
+                  
+                  child:Center(
+                    child: InkWell(
+                      onTap: (){
+                        showCountryPicker(
+                            context: context,
+                            countryListTheme: CountryListThemeData(
+                              bottomSheetHeight: 450
+                            ),
+                            onSelect: (value){
+                              setState(() {
+                               selectedCountry=value;
+                              });
+                            });
+                      },
+                      child: Text(
+                        "${selectedCountry.flagEmoji} + ${selectedCountry.phoneCode}",
+                        style: const TextStyle(
+                          fontSize: 22,
                           color: Colors.black,
-                          fontSize: 18,
-                        ),
-                        icon: Icon(
-                          Icons.arrow_drop_down,
-                          color: Color.fromRGBO(219, 185, 88, 1),
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
+                  )
                   ),
-                ),
-                SizedBox(width: 20),
+                SizedBox(width: 10), // Add padding between the dropdown and text field
                 Expanded(
                   child: Container(
                     height: 45,
-                    padding: EdgeInsets.only(left: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Color.fromRGBO(219, 185, 88, 1),
-                        width: 3,
-                      ),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
                     child: TextField(
-                      textAlignVertical: TextAlignVertical.center,
+                      controller: signinPhoneCont,
+                      textAlign: TextAlign.start,
                       keyboardType: TextInputType.number,
-                      obscureText: !_passwordVisible,
-                      obscuringCharacter: 'X',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      onChanged: (value){
+                        setState(() {
+                          signinPhoneCont.text = value;
+                        });
+                      },
                       decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                        border: InputBorder.none,
-                        hintText: 'Enter Text',
-                        suffixIcon: Icon(
-                          Icons.check,
-                          color: Color.fromRGBO(219, 185, 88, 1),
+                        hintText: 'Phone Number',
+                        suffixIcon: signinPhoneCont.text.length >9 ? Container(
+                          height: 30,
+                          width: 30,
+                          child: Icon(Icons.done , size :25 , color:Color.fromRGBO(219, 185, 88, 1) ),
+                        ) : null,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          borderSide: BorderSide(
+                            color: Color.fromRGBO(219, 185, 88, 1),
+                            width: 2,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          borderSide: BorderSide(
+                            color: Color.fromRGBO(219, 185, 88, 1),
+                            width: 3,
+                          ),
                         ),
                       ),
                     ),
+
                   ),
                 ),
-              ],
-            ),
+                  ]
+                ),
+
             SizedBox(height: 20),
             Container(
               height: 45,
@@ -266,12 +295,12 @@ class sign_in extends StatelessWidget{
                 ),
               ),
             ),
-          ],
+
+        ]
         ),
-      ),
-    );
+      )
+      );
+
   }
-
-
 }
 

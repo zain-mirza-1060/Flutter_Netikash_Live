@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:pinput/pinput.dart';
 import 'package:test/pages/success_page03.dart';
 import 'package:test/pages/sign_in04.dart';
 
 
-class otp_page extends StatelessWidget{
+class otp_page extends StatefulWidget{
+  final String phoneNo;
+  const otp_page({super.key,required this.phoneNo});
+
+  @override
+  State<otp_page> createState() => _otp_pageState();
+}
+
+class _otp_pageState extends State<otp_page> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +46,7 @@ class otp_page extends StatelessWidget{
               children: [
                 Flexible(
                   child: Text(
-                    'Please Enter The OTP sent on +243 xxx xx xxx',
+                    'Please Enter The OTP sent on ' + widget.phoneNo,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                     ),
@@ -46,32 +55,24 @@ class otp_page extends StatelessWidget{
               ],
             ),
             SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                for (int i = 0; i < 6; i++)
-                  Container(
-                    width: 45,
-                    height: 45,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(
-                        color: Color.fromRGBO(219, 185, 88, 1),
-                        width: 3,
-                      ),
-                    ),
-                    child: TextField(
-                      textAlign: TextAlign.center,
-                      keyboardType: TextInputType.number,
-                      maxLength: 1,
-                      style: TextStyle(fontSize: 18),
-                      decoration: InputDecoration(
-                        counterText: '',
-                        border: InputBorder.none,
-                      ),
-                    ),
+            Pinput(
+              length: 6,
+              showCursor: true,
+              defaultPinTheme: PinTheme(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(
+                    color: Color.fromRGBO(219, 185, 88, 1),
+                    width: 3,
                   ),
-              ],
+                ),
+                textStyle: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600
+                )
+              ),
             ),
             SizedBox(height: 20),
             Padding(
@@ -98,7 +99,7 @@ class otp_page extends StatelessWidget{
               ),
             ),
             Expanded(flex: 3, child: SizedBox(height: 80)),
-        GestureDetector(
+            GestureDetector(
           onTap: (){
             Navigator.push(context, MaterialPageRoute(builder: (context)=>sign_in() ));
           },

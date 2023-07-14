@@ -15,7 +15,7 @@ class SplashScreen extends StatelessWidget {
         child: Image.asset('assets/images/img.png'),
       ),
       screenFunction: () async {
-        return sign_in();
+        return sign_up();
       },
       duration: 1700,
       splashIconSize: 10000.0,
