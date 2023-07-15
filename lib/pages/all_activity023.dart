@@ -1,87 +1,118 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-class ActivityPage extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+
+class ActivityPage extends StatefulWidget {
+  @override
+  _ActivityPageState createState() => _ActivityPageState();
+}
+
+class _ActivityPageState extends State<ActivityPage> {
+  late DatabaseReference _databaseRef;
+  List<Map<dynamic, dynamic>> notifications = [];
+  bool hasData = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Firebase.initializeApp().then((value) {
+      _databaseRef = FirebaseDatabase.instance.reference().child('notifications');
+      _databaseRef.once().then((DataSnapshot snapshot) {
+        if (snapshot.value != null) {
+          setState(() {
+            notifications = List<Map<dynamic, dynamic>>.from(snapshot.value as List<dynamic>);
+            hasData = true;
+          });
+        } else {
+          setState(() {
+            hasData = false;
+          });
+        }
+      } as FutureOr Function(Object value));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text('All Activity'),
         centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             // Navigator.push(context, MaterialPageRoute(builder: (context)=> Checker()));
-
           },
-        ),
-        title: Text(
-          'All Activity',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-          ),
         ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            all_activity023(),
-            all_activity023(),
-            all_activity023(),
-            SizedBox(height: 20),
-            Text(
-              'Recent',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
+            if (hasData)
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: notifications.length,
+                itemBuilder: (context, index) {
+                  final notification = notifications[index];
+                  return NotificationCard(
+                    name: 'John Doe',
+                    content: notification['notification_content'],
+                    time: notification['time'],
+                    onDelete: () async {
+                      await _databaseRef.child(notification['serial_number']).remove();
+                      setState(() {
+                        notifications.removeAt(index);
+                      });
+                    },
+                  );
+                },
               ),
-            ),
-            all_activity023(),
-            all_activity023(),
-            SizedBox(height: 20),
-            Text(
-              'Last Week',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
+            if (!hasData)
+              Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.all(16),
+                color: Colors.grey[300],
+                child: Text(
+                  'No New Notifications',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.grey[600],
+                  ),
+                ),
               ),
-            ),
-            all_activity023(),
-            all_activity023(),
-            SizedBox(height: 20),
-            Text(
-              'Last Month',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            all_activity023(),
-            all_activity023(),
           ],
         ),
       ),
     );
   }
 }
-class all_activity023 extends StatefulWidget {
-  @override
-  _NotificationCardState createState() => _NotificationCardState();
-}
 
-class _NotificationCardState extends State<all_activity023> {
-  bool isSwipeVisible = false;
+class NotificationCard extends StatelessWidget {
+  final String name;
+  final String content;
+  final String time;
+  final VoidCallback onDelete;
+
+  const NotificationCard({
+    required this.name,
+    required this.content,
+    required this.time,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (20==20) {
-          setState(() {
-            isSwipeVisible = !isSwipeVisible;
-          });
+        if (20 == 20) {
+          // Add your logic here
         }
       },
       onHorizontalDragEnd: (_) {
-        setState(() {
-          isSwipeVisible = false;
-        });
+        // Add your logic here
       },
       child: Stack(
         children: [
@@ -105,14 +136,14 @@ class _NotificationCardState extends State<all_activity023> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'John Doe',
+                      name,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
-                      'Notification Content',
+                      content,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
@@ -122,36 +153,33 @@ class _NotificationCardState extends State<all_activity023> {
                 ),
                 Spacer(),
                 Text(
-                  '12:30 PM',
+                  time,
                 ),
               ],
             ),
           ),
-          if (isSwipeVisible)
-            Positioned(
-              right: 0,
-              top: 0,
-              bottom: 0,
-              child: Container(
-                width: 60,
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(10),
-                    bottomRight: Radius.circular(10),
-                  ),
-                ),
-                child: IconButton(
-                  icon: Icon(
-                    Icons.delete,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    // Perform delete action
-                  },
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            child: Container(
+              width: 60,
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(10),
+                  bottomRight: Radius.circular(10),
                 ),
               ),
+              child: IconButton(
+                icon: Icon(
+                  Icons.delete,
+                  color: Colors.white,
+                ),
+                onPressed: onDelete,
+              ),
             ),
+          ),
         ],
       ),
     );

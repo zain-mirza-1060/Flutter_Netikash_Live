@@ -47,6 +47,7 @@ dependencies:
   shared_preferences: ^2.2.0
   country_picker: ^2.0.20
   pinput: ^2.2.31
+  firebase_database: ^10.2.3
 
 dev_dependencies:
   flutter_test:

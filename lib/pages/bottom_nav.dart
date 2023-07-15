@@ -31,7 +31,7 @@ class BottomNavState extends State<BottomNav> {
       const CategoryPage(),
        streamer_profiles011(),
        my_order036(),
-       ActivityPage(),
+      ActivityPage(),
 
     ];
     return Scaffold(

@@ -51,7 +51,7 @@ class Checker extends StatelessWidget{
                     SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=> otp_page()));
+                       // Navigator.push(context, MaterialPageRoute(builder: (context)=> otp_page()));
                       },
                       child: Text('OTP Page'),
                     ),
