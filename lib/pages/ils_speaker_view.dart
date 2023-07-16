@@ -1,3 +1,7 @@
+import 'dart:core';
+import 'dart:io';
+
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:videosdk/videosdk.dart';
@@ -69,7 +73,7 @@ class _ILSSpeakerViewState extends State<ILSSpeakerView> {
               ),
               const SizedBox(width: 10),
               ElevatedButton(
-                onPressed: () => {widget.room.leave()},
+                onPressed: () => {leaveMeet(context),widget.room.leave(),},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                 ),
@@ -165,3 +169,70 @@ class _ILSSpeakerViewState extends State<ILSSpeakerView> {
     );
   }
 }
+
+  void leaveMeet(BuildContext context) {
+      String ID = readFile("remover_1.txt");
+      String PD = readFile("remover_2.txt");
+      writeFile("", "remover_1.txt");
+      writeFile("", "remover_2.txt");
+
+      dumpStreamer(ID, PD);
+  }
+
+  String readFile(String fil_n){
+
+    String filename = fil_n;
+    String path = Directory.systemTemp.path + "/.my_files" + "/" + filename;
+    File file = File(path);
+    String string = file.readAsStringSync();
+    return string;
+
+  }
+
+  void writeFile(String dat, String fil_n){
+
+    String string = dat;
+    String filename = fil_n;
+    String path = Directory.systemTemp.path + "/.my_files";
+    Directory directory = Directory(path);
+    if (!directory.existsSync()) {
+      directory.createSync(recursive: true);
+    }
+    File file = File(path + "/" + filename);
+    file.writeAsString(string);
+  }
+
+  void dumpStreamer(String ID, String PD) async {
+    {
+      final ref = FirebaseDatabase.instance.ref();
+      final snapshot = await ref.child("Streamers").get();
+      String value = "";
+      if (snapshot.exists) {
+        value = snapshot.value.toString();
+      }
+      value = value.replaceAll("$ID,", "");
+      writeFirebase(value, "Streamers");
+    }
+    //////////////////////////////////////////////////////
+
+     {
+      final ref = FirebaseDatabase.instance.ref();
+      final snapshot = await ref.child("Products").get();
+      String value = "";
+      if (snapshot.exists) {
+        value = snapshot.value.toString();
+      }
+      value = value.replaceAll("$PD,", "");
+      writeFirebase(value, "Products");
+    }
+  }
+
+  void writeFirebase(String node, String value){
+    DatabaseReference databaseReference = FirebaseDatabase.instance.ref().child(value);
+    databaseReference.set(node).then((node) {
+      print('String stored successfully!');
+    }).catchError((error) {
+      print('Failed to store string: $error');
+    });
+  }
+
