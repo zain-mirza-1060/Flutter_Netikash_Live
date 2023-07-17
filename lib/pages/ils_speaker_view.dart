@@ -173,10 +173,12 @@ class _ILSSpeakerViewState extends State<ILSSpeakerView> {
   void leaveMeet(BuildContext context) {
       String ID = readFile("remover_1.txt");
       String PD = readFile("remover_2.txt");
+      String UN = readFile("remover_3.txt");
       writeFile("", "remover_1.txt");
       writeFile("", "remover_2.txt");
+      writeFile("", "remover_3.txt");
 
-      dumpStreamer(ID, PD);
+      dumpStreamer(ID, PD, UN);
   }
 
   String readFile(String fil_n){
@@ -202,7 +204,7 @@ class _ILSSpeakerViewState extends State<ILSSpeakerView> {
     file.writeAsString(string);
   }
 
-  void dumpStreamer(String ID, String PD) async {
+  void dumpStreamer(String ID, String PD, String UN) async {
     {
       final ref = FirebaseDatabase.instance.ref();
       final snapshot = await ref.child("Streamers").get();
@@ -224,6 +226,17 @@ class _ILSSpeakerViewState extends State<ILSSpeakerView> {
       }
       value = value.replaceAll("$PD,", "");
       writeFirebase(value, "Products");
+    }
+    //////////////////////////////////////////////////////
+     {
+      final ref = FirebaseDatabase.instance.ref();
+      final snapshot = await ref.child("Users").get();
+      String value = "";
+      if (snapshot.exists) {
+        value = snapshot.value.toString();
+      }
+      value = value.replaceAll("$UN,", "");
+      writeFirebase(value, "Users");
     }
   }
 

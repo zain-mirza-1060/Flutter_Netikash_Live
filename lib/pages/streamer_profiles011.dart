@@ -1,9 +1,37 @@
+import 'dart:ffi';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:test/pages/join_screen.dart';
+import 'package:videosdk/videosdk.dart';
+
+import 'ils_screen.dart';
+
+String ID_Read = "";
+String PD_Read = "";
+String UN_Read = "";
 
 class streamer_profiles011 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+    List<String> streamers = ['Streamer 1', 'Streamer 2'];
+    List<String> desc = ['Streamer 1', 'Streamer 2'];
+    List<String> totalfol = ["10", "20"];
+
+    ID_Generator();
+    PD_Generator();
+    UN_Generator();
+
+
+
+    streamers = splitStringOnCommas(UN_Read);
+    desc = splitStringOnCommas(ID_Read);
+    totalfol = splitStringOnCommas(PD_Read);
+
+
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -48,18 +76,21 @@ class streamer_profiles011 extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    // Handle active button press
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: Color.fromRGBO(219, 185, 88, 1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Color.fromRGBO(285, 188, 85, 1),
                     ),
-                    fixedSize: Size(100, 60),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Text('Active'),
+                  width: 100,
+                  height: 60,
+                  child: TextButton(
+                    onPressed: () {
+                      // Handle my sellers button press
+                    },
+                    child: Text('Active'),
+                  ),
                 ),
                 Container(
                   decoration: BoxDecoration(
@@ -106,42 +137,14 @@ class streamer_profiles011 extends StatelessWidget {
               ],
             ),
             SizedBox(height: 20),
-            LiveStreamerProfileCard(
-              profilePicture: 'assets/images/user.png',
-              streamerName: 'Streamer 1',
-              streamerDescription: 'Lorem ipsum dolor sit amet',
-              totalProducts: 100,
-            ),
-            LiveStreamerProfileCard(
-              profilePicture: 'assets/images/user.png',
-              streamerName: 'Streamer 2',
-              streamerDescription: 'Consectetur adipiscing elit',
-              totalProducts: 200,
-            ),
-            LiveStreamerProfileCard(
-              profilePicture: 'assets/images/user.png',
-              streamerName: 'Streamer 3',
-              streamerDescription: 'Sed do eiusmod tempor incididunt',
-              totalProducts: 150,
-            ),
-            LiveStreamerProfileCard(
-              profilePicture: 'assets/images/user.png',
-              streamerName: 'Streamer 4',
-              streamerDescription: 'Ut labore et dolore magna aliqua',
-              totalProducts: 250,
-            ),
-            LiveStreamerProfileCard(
-              profilePicture: 'assets/images/user.png',
-              streamerName: 'Streamer 5',
-              streamerDescription: 'Duis aute irure dolor in reprehenderit',
-              totalProducts: 180,
-            ),
-            LiveStreamerProfileCard(
-              profilePicture: 'assets/images/user.png',
-              streamerName: 'Streamer 6',
-              streamerDescription: 'Excepteur sint occaecat cupidatat non proident',
-              totalProducts: 300,
-            ),
+            for (int i=0;i<streamers.length-1;i++)
+              LiveStreamerProfileCard(
+                profilePicture: 'assets/images/user.png',
+                streamerName: streamers[i],
+                streamerDescription: desc[i],
+                totalProducts: totalfol[i],
+              ),
+
           ],
         ),
       ),
@@ -149,11 +152,12 @@ class streamer_profiles011 extends StatelessWidget {
   }
 }
 
+
 class LiveStreamerProfileCard extends StatelessWidget {
   final String profilePicture;
   final String streamerName;
   final String streamerDescription;
-  final int totalProducts;
+  final String totalProducts;
 
   LiveStreamerProfileCard({
     required this.profilePicture,
@@ -226,11 +230,23 @@ class LiveStreamerProfileCard extends StatelessWidget {
               ),
               child: IconButton(
                 icon: Icon(
-                  Icons.add,
+                  Icons.arrow_circle_right_rounded,
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  // Handle follow button press
+                  String meetingId = streamerDescription;
+                  var re = RegExp("\\w{4}\\-\\w{4}\\-\\w{4}");
+                  if (meetingId.isNotEmpty && re.hasMatch(meetingId)) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ILSScreen(
+                          meetingId: meetingId,
+                          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlrZXkiOiI4MTUzNTllZC05NzllLTQ2NWYtYTRlZC1hMDQzNmExNmIyYWMiLCJwZXJtaXNzaW9ucyI6WyJhbGxvd19qb2luIl0sImlhdCI6MTY4OTEwNjE4NCwiZXhwIjoxODQ2ODk0MTg0fQ.AktPCxll1LvNvo4ElXbqpxGL4soMx55F1Q3rTvuTJog",
+                          mode: Mode.VIEWER,
+                        ),
+                      ),
+                    );
+                  }
                 },
               ),
             ),
@@ -240,3 +256,56 @@ class LiveStreamerProfileCard extends StatelessWidget {
     );
   }
 }
+void ID_Generator() async {
+  final ref = FirebaseDatabase.instance.ref();
+  final snapshot = await ref.child('Streamers').get();
+  String value="";
+  if (snapshot.exists) {
+    value=snapshot.value.toString();
+  } else {
+    print('No data available.');
+  }
+  ID_Read = value;
+}
+void PD_Generator() async {
+  final ref = FirebaseDatabase.instance.ref();
+  final snapshot = await ref.child('Products').get();
+  String value="";
+  if (snapshot.exists) {
+    value=snapshot.value.toString();
+  } else {
+    print('No data available.');
+  }
+  PD_Read = value;
+}
+void UN_Generator() async {
+  final ref = FirebaseDatabase.instance.ref();
+  final snapshot = await ref.child('Users').get();
+  String value="";
+  if (snapshot.exists) {
+    value=snapshot.value.toString();
+  } else {
+    print('No data available.');
+  }
+  UN_Read = value;
+}
+
+List<String> splitStringOnCommas(String string) {
+  if(string==""){
+    List<String> strings = [];
+    return strings;
+  }
+  List<String> strings = [];
+
+  // Split the string on commas.
+  List<String> splitStrings = string.split(',');
+
+  // Add the split strings to the list.
+  for (String splitString in splitStrings) {
+    strings.add(splitString);
+  }
+
+  return strings;
+}
+
+
