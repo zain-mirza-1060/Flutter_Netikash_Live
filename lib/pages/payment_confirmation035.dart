@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'bottom_nav.dart';
+
 class payment_confirmation035 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -8,7 +10,7 @@ class payment_confirmation035 extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            // Navigator.push(context, MaterialPageRoute(builder: (context)=> Checker()));
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>BottomNav()));
           },
         ),
         title: Text(

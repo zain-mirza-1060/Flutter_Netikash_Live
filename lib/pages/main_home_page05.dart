@@ -194,7 +194,7 @@ class MainHomePage extends StatelessWidget {
                       children: [
                         GestureDetector(
                           onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>product_page030()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>product_page030(productID: "7rsm3XkNMuK43fnmmuQd", )));
                           },
                             child: ShowHomeProduct(homeproduct: homeproduct1)
                         ),

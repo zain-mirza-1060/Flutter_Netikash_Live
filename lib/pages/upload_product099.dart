@@ -23,7 +23,10 @@ class _ProductUploadPageState extends State<ProductUploadPage> {
   Future<void> _uploadProduct() async {
 
     String? midID = FirebaseAuth.instance.currentUser?.uid;
-    String userID = midID.toString();
+    String userID = "Anonymous";
+    if(midID.toString()!=""){
+      userID = midID.toString();
+    }
     FirebaseAuth auth = FirebaseAuth.instance;
     auth.signInAnonymously();
     String productName = _productNameController.text;
@@ -47,10 +50,11 @@ class _ProductUploadPageState extends State<ProductUploadPage> {
       'sellerAddress': sellerAddress,
       'imageUrls': imageUrls,
       'userID' : userID,
+      'ratings': 0,
     });
     // Show a snackbar to indicate that the product has been uploaded
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Product uploaded successfully'),
       ),
     );
