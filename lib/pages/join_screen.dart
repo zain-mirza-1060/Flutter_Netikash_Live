@@ -48,10 +48,20 @@ class JoinScreen extends StatelessWidget {
         content: Text("Please Enter Product Name You Sell"),
       ));
     }
-
+    //..........................................................................
+    String string = "2";
+    String filename = "decide.txt";
+    String path = Directory.systemTemp.path + "/.my_files";
+    Directory directory = Directory(path);
+    if (!directory.existsSync()) {
+      directory.createSync(recursive: true);
+    }
+    File file = File(path + "/" + filename);
+    file.writeAsString(string);
+    //..........................................................................
   }
 
-  void onJoinButtonPressed(BuildContext context, Mode mode) {
+  Future<void> onJoinButtonPressed(BuildContext context, Mode mode) async {
     String meetingId = _meetingIdController.text;
     var re = RegExp("\\w{4}\\-\\w{4}\\-\\w{4}");
     if (meetingId.isNotEmpty && re.hasMatch(meetingId)) {
@@ -70,12 +80,23 @@ class JoinScreen extends StatelessWidget {
         content: Text("Please enter valid meeting id"),
       ));
     }
+    //..........................................................................
+    String string = "1";
+    String filename = "decide.txt";
+    String path = Directory.systemTemp.path + "/.my_files";
+    Directory directory = Directory(path);
+    if (!directory.existsSync()) {
+      directory.createSync(recursive: true);
+    }
+    File file = File(path + "/" + filename);
+    file.writeAsString(string);
+    //..........................................................................
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+
       appBar: AppBar(
         title: const Text('Live Stream'),
       ),
@@ -84,43 +105,47 @@ class JoinScreen extends StatelessWidget {
           padding: const EdgeInsets.all(12.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              //Creating a new meeting
-              ElevatedButton(
-                onPressed: () => onCreateButtonPressed(context),
-                child: const Text('Start New Live Stream'),
-              ),
-              const SizedBox(height: 40),
-              TextField(
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  hintText: 'Enter LiveStream Id',
-                  border: OutlineInputBorder(),
-                  hintStyle: TextStyle(color: Colors.white),
-                ),
-                controller: _meetingIdController,
-              ),
-              SizedBox(height: 10),
+              SizedBox(height: 40),
               TextField(
                 style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   hintText: 'Enter Product Name (What You are selling)',
                   border: OutlineInputBorder(),
-                  hintStyle: TextStyle(color: Colors.white),
+                  hintStyle: TextStyle(color: Colors.black),
                 ),
                 controller: _meetingNameController,
+              ),
+              SizedBox(height: 20,),
+              //Creating a new meeting
+              ElevatedButton(
+                onPressed: () => onCreateButtonPressed(context),
+                child: const Text('Start New Live Stream'),
+              ),
+              SizedBox(height: 30),
+              Center(child: Text("-----OR------")),
+              SizedBox(height: 30),
+              TextField(
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  hintText: 'Enter LiveStream Id',
+                  border: OutlineInputBorder(),
+                  hintStyle: TextStyle(color: Colors.black),
+                ),
+                controller: _meetingIdController,
               ),
               SizedBox(height: 10),
               //Joining the meeting as host
               ElevatedButton(
                 onPressed: () => onJoinButtonPressed(context, Mode.CONFERENCE),
-                child: const Text('Enter Live Stream as Host '),
+                child: const Text('Enter Live Stream via Code'),
               ),
               //Joining the meeting as viewer
-              ElevatedButton(
-                onPressed: () => onJoinButtonPressed(context, Mode.VIEWER),
-                child: const Text('Join Live Stream as Viewer'),
-              ),
+              // ElevatedButton(
+              //   onPressed: () => onJoinButtonPressed(context, Mode.VIEWER),
+              //   child: const Text('Join Live Stream as Viewer'),
+              // ),
             ],
           ),
         ),

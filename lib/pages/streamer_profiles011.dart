@@ -242,7 +242,7 @@ class LiveStreamerProfileCard extends StatelessWidget {
                         builder: (context) => ILSScreen(
                           meetingId: meetingId,
                           token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlrZXkiOiI4MTUzNTllZC05NzllLTQ2NWYtYTRlZC1hMDQzNmExNmIyYWMiLCJwZXJtaXNzaW9ucyI6WyJhbGxvd19qb2luIl0sImlhdCI6MTY4OTEwNjE4NCwiZXhwIjoxODQ2ODk0MTg0fQ.AktPCxll1LvNvo4ElXbqpxGL4soMx55F1Q3rTvuTJog",
-                          mode: Mode.VIEWER,
+                          mode: Mode.CONFERENCE,
                         ),
                       ),
                     );

@@ -23,8 +23,10 @@ class _ILSSpeakerViewState extends State<ILSSpeakerView> {
   var micEnabled = true;
   var camEnabled = true;
   String hlsState = "HLS_STOPPED";
+  bool Flag = Decide();
 
   Map<String, Participant> participants = {};
+
 
   @override
   void initState() {
@@ -117,20 +119,35 @@ class _ILSSpeakerViewState extends State<ILSSpeakerView> {
             onHLSButtonPressed: () => {
               if (hlsState == "HLS_STOPPED")
                 {
-                  widget.room.startHls(config: {
-                    "layout": {
-                      "type": "SPOTLIGHT",
-                      "priority": "PIN",
-                      "GRID": 20,
-                    },
-                    "mode": "video-and-audio",
-                    "theme": "DARK",
-                    "quality": "high",
-                    "orientation": "portrait",
-                  })
+                  if(Flag==true){
+                    widget.room.startHls(config: {
+                      "layout": {
+                        "type": "SPOTLIGHT",
+                        "priority": "PIN",
+                        "GRID": 20,
+                      },
+                      "mode": "video-and-audio",
+                      "theme": "DARK",
+                      "quality": "high",
+                      "orientation": "portrait",
+                    })
+                  }
+                  else{
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text("You are not host"),
+                    ))
+                  }
                 }
-              else if (hlsState == "HLS_STARTED" || hlsState == "HLS_PLAYABLE")
-                {widget.room.stopHls()}
+              else if (hlsState == "HLS_STARTED" || hlsState == "HLS_PLAYABLE"){
+                if(Flag==true){
+                  widget.room.stopHls()
+                }
+                else{
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text("You are not host"),
+                  ))
+                }
+              }
             },
           ),
         ],
@@ -249,3 +266,12 @@ class _ILSSpeakerViewState extends State<ILSSpeakerView> {
     });
   }
 
+  bool Decide(){
+    String ID = readFile("decide.txt");
+    if(ID=="1"){
+      return false;
+    }
+    else{
+      return true;
+    }
+  }
