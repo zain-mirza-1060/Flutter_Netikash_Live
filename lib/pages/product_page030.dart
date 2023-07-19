@@ -1,3 +1,5 @@
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -213,7 +215,7 @@ class product_page030 extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => review_page031()));
+                            builder: (context) => review_page031(productID: productID,)));
                       },
                       style: ElevatedButton.styleFrom(
                         primary: Colors.transparent,
@@ -266,8 +268,6 @@ class product_page030 extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context),
-
-
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size.fromHeight(70),
                       shape: RoundedRectangleBorder(
@@ -281,7 +281,11 @@ class product_page030 extends StatelessWidget {
 
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () =>  Navigator.push(context, MaterialPageRoute(builder: (context)=>payment_page034())),
+                    onPressed: () {
+                      _orderProduct(productID);
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>payment_page034()));
+                    },
+
                     style: ElevatedButton.styleFrom(
                         fixedSize: Size.fromHeight(70),
                         shape: RoundedRectangleBorder(
@@ -352,4 +356,29 @@ class product_page030 extends StatelessWidget {
         stringArray[0] = "#";
       }
       return stringArray;
+  }
+
+  Future<void> _orderProduct(String ProductID) async {
+
+    String? midID = FirebaseAuth.instance.currentUser?.uid;
+    String userID = "Anonymous";
+    if(midID.toString()!=""){
+      userID = midID.toString();
+    }
+    //.........................................................
+    DateTime now = DateTime.now();
+    int month = now.month + 1;
+    int year = now.year;
+    if (month > 12) {
+      month = month % 12;
+      year++;
+    }
+    String oneMonthLater = DateTime(year, month, now.day).toString();
+    oneMonthLater = oneMonthLater.replaceRange(9, oneMonthLater.length-1, "");
+    //.........................................................
+    await FirebaseFirestore.instance.collection('orders').add({
+      'orderDate': oneMonthLater,
+      'productID': ProductID,
+      'userID': userID,
+    });
   }

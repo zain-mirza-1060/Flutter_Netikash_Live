@@ -3,6 +3,10 @@ import 'package:test/pages/Review_Page032.dart';
 
 
 class review_page031 extends StatelessWidget {
+
+  String productID = "";
+  review_page031({required this.productID});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -190,7 +194,7 @@ class review_page031 extends StatelessWidget {
                   minimumSize: Size(100, 50),
                 ),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>Review_Page032()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>Review_Page032(productID: productID,)));
 
                 },
                 child: Text(
@@ -280,7 +284,7 @@ class review_page031 extends StatelessWidget {
                         minimumSize: Size(100, 50),
                       ),
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Review_Page032()));
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Review_Page032(productID: productID,)));
                       },
                       child: Text(
                         'Add Review',
