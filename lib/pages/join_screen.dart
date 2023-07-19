@@ -109,7 +109,7 @@ class JoinScreen extends StatelessWidget {
             children: [
               SizedBox(height: 40),
               TextField(
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   hintText: 'Enter Product Name (What You are selling)',
                   border: OutlineInputBorder(),
@@ -127,7 +127,7 @@ class JoinScreen extends StatelessWidget {
               Center(child: Text("-----OR------")),
               SizedBox(height: 30),
               TextField(
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   hintText: 'Enter LiveStream Id',
                   border: OutlineInputBorder(),
