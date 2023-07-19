@@ -1,22 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:test/pages/Review_Page032.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'Review_Page032.dart';
 
-class review_page031 extends StatelessWidget {
+class review_page031 extends StatefulWidget {
+  final String productID;
 
-  String productID = "";
   review_page031({required this.productID});
 
   @override
+  _review_page031State createState() => _review_page031State();
+}
+
+class _review_page031State extends State<review_page031> {
+
+
+  @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: ()=> Navigator.pop(context),
-
+          onPressed: () => Navigator.pop(context),
         ),
-        title: Center(child: Text('Review', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 25),)),
+        title: Center(
+          child: Text(
+            'Review',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 25),
+          ),
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.search),
@@ -26,283 +39,120 @@ class review_page031 extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(children: [Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                '4.7',
-                style: TextStyle(
-                  fontSize: 40,
-                ),
-              ),
-            ),
-              SizedBox(width: 20,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.star,
-                    color: Color.fromRGBO(219, 185, 88, 1),
-                  ),
-                  Icon(
-                    Icons.star,
-                    color: Color.fromRGBO(219, 185, 88, 1),
-                  ),
-                  Icon(
-                    Icons.star,
-                    color: Color.fromRGBO(219, 185, 88, 1),
-                  ),
-                  Icon(
-                    Icons.star,
-                    color: Color.fromRGBO(219, 185, 88, 1),
-                  ),
-                  Icon(
-                    Icons.star,
-                    color: Color.fromRGBO(219, 185, 88, 1),
-                  ),
-                  SizedBox(width: 5),
-                  Text(
-                    '(257)',
-                    style: TextStyle(
-                      fontSize: 15,
-                    ),
-                  ),
-                ],
-              ),],),
-
-            SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Card(
-                child: Column(
-                  children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Excellent',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: LinearProgressIndicator(
-                          backgroundColor: Colors.grey[300],
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Color.fromRGBO(219, 185, 88, 1),
-                          ),
-                          value: 0.8,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Good',
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: LinearProgressIndicator(
-                          backgroundColor: Colors.grey[300],
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Color.fromRGBO(219, 185, 88, 1),
-                          ),
-                          value: 0.6,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Average',
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: LinearProgressIndicator(
-                          backgroundColor: Colors.grey[300],
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Color.fromRGBO(219, 185, 88, 1),
-                          ),
-                          value: 0.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Poor',
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: LinearProgressIndicator(
-                          backgroundColor: Colors.grey[300],
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Color.fromRGBO(219, 185, 88, 1),
-                          ),
-                          value: 0.2,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                ]),
-              ),
-            ),
-            SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: Color.fromRGBO(219, 185, 88, 0.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  minimumSize: Size(100, 50),
-                ),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>Review_Page032(productID: productID,)));
-
-                },
-                child: Text(
-                  'Add Review',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height:20),
-            SingleChildScrollView(
+      body: FutureBuilder<List<String>>(
+        future: fetchProductReviews(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            print("AZAM KHAN: LOAD");
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            print("AZAM KHAN: ERROR");
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            final reviews = snapshot.data ?? [];
+            if (reviews.isEmpty) {
+              print("AZAM KHAN: EMPTY");
+              return Center(child: Text('No Reviews Currently'));
+            }
+            return SingleChildScrollView(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ReviewCard(
-                    profilePicture: 'assets/images/user.png',
-                    name: 'Caroline Davis',
-                    rating: 4.9,
-                    time: 'few seconds ago',
-                    review: 'Lorem ipsum elit.',
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: reviews.length,
+                    itemBuilder: (context, index) {
+                      final review = reviews[index];
+                      return ReviewCard(
+                        profilePicture: 'assets/images/user.png',
+                        name: 'Anonymous',
+                        rating: 5.0,
+                        time: 'a while ago',
+                        review: review,
+                      );
+                    },
                   ),
-                  ReviewCard(
-                    profilePicture: 'assets/images/user.png',
-                    name: 'Jane Smith',
-                    rating: 3.8,
-                    time: '1 day ago',
-                    review: 'Nulla consequat massa quis enim.',
-                  ),
-                  ReviewCard(
-                    profilePicture: 'assets/images/user.png',
-                    name: 'Mike Johnson',
-                    rating: 5.0,
-                    time: '3 days ago',
-                    review: 'Cras mattis consectetur purus sit amet fermentum.',
-                  ),
-                  ReviewCard(
-                    profilePicture: 'assets/images/user.png',
-                    name: 'John Doe',
-                    rating: 4.5,
-                    time: '2 hours ago',
-                    review: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+                  Row(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 20),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.grey.shade300,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              minimumSize: Size(100, 50),
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                            child: Text(
+                              'Back',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(child: SizedBox(width: 20)),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: Color.fromRGBO(219, 185, 88, 0.5),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              minimumSize: Size(100, 50),
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      Review_Page032(productID: widget.productID),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              'Add Review',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only( left: 20),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.grey.shade300,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        minimumSize: Size(100, 50),
-                      ),
-                      onPressed: ()=> Navigator.pop(context),
-
-                      child: Text(
-                        'Back',
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(child: SizedBox(width: 20,)),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        primary: Color.fromRGBO(219, 185, 88, 0.5),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        minimumSize: Size(100, 50),
-                      ),
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Review_Page032(productID: productID,)));
-                      },
-                      child: Text(
-                        'Add Review',
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+            );
+          }
+        },
       ),
     );
+  }
+
+  Future<List<String>> fetchProductReviews() async {
+    print("AZAM KHAN: "+widget.productID);
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('products')
+        .doc(widget.productID)
+        .get();
+    print("AZAM KHAN: 2");
+    final reviews = querySnapshot.get('reviews') as List<dynamic>?;
+    print("AZAM KHAN: 3");
+    return reviews?.cast<String>() ?? [];
   }
 }
 
@@ -382,3 +232,4 @@ class ReviewCard extends StatelessWidget {
     );
   }
 }
+
