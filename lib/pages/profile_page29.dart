@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:test/screens/profile_product.dart';
 ProfileProduct product1 = ProfileProduct(
     product: 'assets/images/shirt2.jpg',
@@ -29,7 +31,58 @@ ProfileProduct product1 = ProfileProduct(
     reviews: '80',
     orders: '100'
 );
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
+  final String? userID;
+  const ProfilePage({required this.userID});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String imageURL = '';
+  String displayName = '';
+  String userName = 'default user';
+  int followerCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData(widget.userID);
+  }
+
+  Future<void> fetchData(String? userID) async {
+    try {
+      if (userID != null) {
+        DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(userID).get();
+
+        if (userSnapshot.exists) {
+          Map<String, dynamic>? userData = userSnapshot.data();
+          if (userData != null) {
+            String? profileImageURL = userData['Profile Image'];
+            int? profileFollowers = userData['Followers Count'];
+            String? fname = userData['First Name'];
+            String? lname = userData['Last Name'];
+            String? uname = userData['User name'];
+
+            setState(() {
+              imageURL = profileImageURL ?? '';
+              followerCount = profileFollowers ?? 0;
+              displayName = (fname ?? '') + ' ' + (lname ?? '');
+              userName = uname ?? '';
+            });
+          }
+        } else {
+          print('User profile does not exist');
+        }
+      }
+    } catch (error) {
+      print('Error fetching user data: $error');
+      Get.snackbar('Error Loading Data', error.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -65,9 +118,7 @@ class ProfilePage extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.more_horiz,color: Colors.black,size: 30,),
-            onPressed: () {
-              // Handle menu button press
-            },
+            onPressed: () {},
           ),
         ],
       ),
@@ -79,12 +130,12 @@ class ProfilePage extends StatelessWidget {
             padding: const EdgeInsets.only(top: 20),
             child: CircleAvatar(
               radius: 35,
-              backgroundImage: AssetImage('assets/images/profile1.jpg'),
+              backgroundImage:  imageURL.isNotEmpty ? NetworkImage(imageURL) : null,
             ),
           ),
           SizedBox(height: 10),
           Text(
-            'Frank Nelson',
+            displayName,
             style: TextStyle(
               fontSize: font4,
               fontWeight: FontWeight.bold,
@@ -92,11 +143,11 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
           Text(
-            'User: mary255',
+            userName,
             style: TextStyle(
               fontSize: font2,
               fontWeight: FontWeight.w400,
-              color: Colors.black87,
+              color: Colors.black,
             ),
           ),
           Container(
@@ -166,7 +217,7 @@ class ProfilePage extends StatelessWidget {
                 Column(
                   children: [
                     Text(
-                      '146k',
+                      followerCount.toString(),
                       style: TextStyle(
                         fontSize: font3,
                         fontWeight: FontWeight.bold,

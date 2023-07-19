@@ -1,22 +1,48 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
+import 'package:test/pages/profile_page29.dart';
 
-class SellerProfile{
-  final String image;
-  final String count;
+class ShowSellerProfile extends StatefulWidget {
+  final String? userID;
+  const ShowSellerProfile({required this.userID});
 
-  SellerProfile({
-    required this.image,
-    required this.count,
-  });
+  @override
+  State<ShowSellerProfile> createState() => _ShowSellerProfileState();
 }
 
-class ShowSellerProfile extends StatelessWidget {
-  final SellerProfile sellerprofile;
+class _ShowSellerProfileState extends State<ShowSellerProfile> {
+  String imageURL='';
+  int FollowerCount= 0;
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData(widget.userID);
+  }
 
-  const ShowSellerProfile({required this.sellerprofile});
+  Future<void> fetchUserData(String? userID) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot = await FirebaseFirestore.instance
+          .collection('users').doc(userID).get();
+
+      if (userSnapshot.exists) {
+        String profileImageURL = userSnapshot.data()?['Profile Image'];
+        int profileFollowers = userSnapshot.data()?['Followers Count'];
+        setState(() {
+          imageURL = profileImageURL;
+          FollowerCount = profileFollowers;
+        });
+      }
+    } catch (error) {
+      // Get.snackbar('Error Loading Data', error.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
     double size1 = 15.0;
     double fontbig = size1 * MediaQuery.of(context).textScaleFactor;
     double size2 = 10.0;
@@ -35,23 +61,28 @@ class ShowSellerProfile extends StatelessWidget {
           crossAxisAlignment:
           CrossAxisAlignment.center,
           children: [
-            Container(
-                height: 65,
-                width: 65,
-                child: CircleAvatar(
-                  radius: 20,
-                  backgroundImage: AssetImage(sellerprofile.image),
-                )),
-            
+            GestureDetector(
+              onTap: (){
+                Get.to(()=> ProfilePage(userID: widget.userID));
+              },
+              child: Container(
+                  height: screenHeight * 0.077,       //65
+                  width: screenWidth * 0.4458 * 0.375,    //65
+                  child: CircleAvatar(
+                    radius: 20,
+                    backgroundImage:  imageURL.isNotEmpty ? NetworkImage(imageURL) : null,
+                  )),
+            ),
+
             Flexible(
-              child: Text(sellerprofile.count + 'K',
+              child: Text( FollowerCount.toString(),
                   style: TextStyle(
                       fontSize: size1,
                       color: Color(0xFF333333),
                       fontWeight:
                       FontWeight.bold)),
             ),
-            
+
             Flexible(
               child: Text('Followers ',
                   style: TextStyle(
@@ -66,3 +97,4 @@ class ShowSellerProfile extends StatelessWidget {
     );
   }
 }
+

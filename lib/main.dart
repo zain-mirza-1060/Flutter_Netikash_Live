@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:test/pages/main_home_page05.dart';
+import 'package:get/get.dart';
 import 'package:test/pages/splash_screen00.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'dart:io';
-import 'dart:convert';
-import 'dart:async';
-import 'package:path_provider/path_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,11 +17,17 @@ void main() async {
 
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'Netikask Live',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -35,5 +37,7 @@ class MyApp extends StatelessWidget {
       home: SplashScreen(),
       // home: CartPage(),
     );
+
+
   }
 }

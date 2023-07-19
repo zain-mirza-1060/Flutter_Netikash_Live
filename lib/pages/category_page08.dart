@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:test/screens/choices.dart';
 import 'package:test/screens/category.dart';
 import 'package:test/screens/category_product.dart';
@@ -88,12 +90,9 @@ class CategoryPage extends StatelessWidget {
       reviews: '80',
       orders: '100'
     );
-    SideBar sidebar = SideBar(
-        profile: 'assets/images/profile1.jpg',
-        name:'Frank Nelson',
-        location: 'Barcelona, Venezuela'
-    );
     final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+    User? userid = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
         key:_scaffoldKey,
         backgroundColor: Colors.white,
@@ -148,7 +147,7 @@ class CategoryPage extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=> ProfilePage()));
+                          Get.to(()=> ProfilePage(userID: userid?.uid));
 
                         },
                         child: Container(
@@ -251,7 +250,7 @@ class CategoryPage extends StatelessWidget {
           ])
         ]),
       drawer: Drawer(
-        child: ShowSideBar(sidebar: sidebar,),
+        child: ShowSideBar(),
         width:220,
       )
     );

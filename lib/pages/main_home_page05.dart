@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:test/screens/see_more.dart';
 import 'package:test/screens/seller_profile.dart';
 import 'package:test/screens/home_product.dart';
@@ -7,14 +10,43 @@ import 'package:test/pages/profile_page29.dart';
 import 'package:test/pages/product_page030.dart';
 import 'package:test/pages/search_bar024.dart';
 
-class MainHomePage extends StatelessWidget {
+class MainHomePage extends StatefulWidget {
   const MainHomePage({super.key});
 
+  @override
+  State<MainHomePage> createState() => _MainHomePageState();
+}
+
+class _MainHomePageState extends State<MainHomePage> {
+  User? userid = FirebaseAuth.instance.currentUser;
+  String imageURL='';
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData(userid?.uid);
+  }
+
+  Future<void> fetchUserData(String? userID) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userID)
+          .get();
+
+      if (userSnapshot.exists) {
+        String profileImageURL = userSnapshot.data()?['Profile Image'];
+        setState(() {
+          imageURL = profileImageURL;
+        });
+      }
+    } catch (error) {
+      Get.snackbar('Error Loading Data', error.toString());
+    }
+  }
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
-      String profile_image = 'assets/images/profile1.jpg';
       String notifications= '3';
 
       SeeMore smore1 = SeeMore(
@@ -22,19 +54,6 @@ class MainHomePage extends StatelessWidget {
       );
       SeeMore smore2 = SeeMore(
         name : 'Feature Product'
-      );
-      SellerProfile sellerprofile2 = SellerProfile(
-      image: 'assets/images/profile2.jpg',
-      count: '145',
-      );SellerProfile sellerprofile1 = SellerProfile(
-      image: 'assets/images/profile1.jpg',
-      count: '300',
-      );SellerProfile sellerprofile3 = SellerProfile(
-      image: 'assets/images/profile3.jpg',
-      count: '50',
-      );SellerProfile sellerprofile4 = SellerProfile(
-      image: 'assets/images/profile4.jpg',
-      count: '20',
       );
     HomeProduct homeproduct1 = HomeProduct(
       profile: 'assets/images/profile4.jpg',
@@ -65,11 +84,7 @@ class MainHomePage extends StatelessWidget {
       oldprice:'100',
       count: '78',
     );
-    SideBar sidebar = SideBar(
-        profile: 'assets/images/profile1.jpg',
-        name:'Frank Nelson',
-        location: 'Barcelona, Venezuela'
-    );
+
     final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
     return Scaffold(
         key:_scaffoldKey,
@@ -127,8 +142,7 @@ class MainHomePage extends StatelessWidget {
                         ),
                         GestureDetector(
                           onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=> ProfilePage()));
-
+                            Get.to(()=> ProfilePage(userID: userid?.uid));
                           },
                           child: Container(
                             height: 52,
@@ -136,7 +150,7 @@ class MainHomePage extends StatelessWidget {
                             child: CircleAvatar(
                               radius: 20,
                               backgroundImage:
-                              AssetImage(profile_image),
+                              imageURL.isNotEmpty ? NetworkImage(imageURL) : null,
                             ),
                           ),
                         )
@@ -163,25 +177,33 @@ class MainHomePage extends StatelessWidget {
                     child: Row(
                       children: [
                         Container(
-                            height: 100,
-                            width: screenWidth,
-                            child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                children: [
-                                  Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                      ShowSellerProfile(sellerprofile:sellerprofile2),
-                                      ShowSellerProfile(sellerprofile:sellerprofile3),
-                                      //ShowSellerProfile(sellerprofile:sellerprofile4),
-                                      ShowSellerProfile(sellerprofile:sellerprofile1),
-                                      ShowSellerProfile(sellerprofile:sellerprofile2),
-                                      ShowSellerProfile(sellerprofile:sellerprofile1),
-                                      ShowSellerProfile(sellerprofile:sellerprofile3),
+                          height: screenHeight * 0.110, //100
+                          width: screenWidth,
+                          child: StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance.collection('users')
+                                .orderBy('Followers Count', descending: true)
+                                .limit(10).snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) {
+                                return Text('Error fetching user data');
+                              }
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return CircularProgressIndicator();
+                              }
+                              final users = snapshot.data?.docs;
 
-                                      ])
-                                ]))
+                              return ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: users?.length,
+                                itemBuilder: (context, index) {
+                                  final userId = users?[index].id;
+                                  return ShowSellerProfile(userID: userId);
+                                },
+                              );
+                            },
+                          ),
+                        )
+
                       ],
                     )),
                 ShowSeeMore(seemore:smore2),
@@ -246,7 +268,7 @@ class MainHomePage extends StatelessWidget {
           ],
         ),
       drawer: Drawer(
-        child: ShowSideBar(sidebar: sidebar),
+        child: ShowSideBar(),
         width: screenWidth * 0.6,
       ),
     );

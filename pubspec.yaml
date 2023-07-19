@@ -44,9 +44,11 @@ dependencies:
   firebase_auth: ^4.6.3
   firebase_storage: ^11.2.4
   cloud_firestore: ^4.8.2
-  shared_preferences: ^2.2.0
   country_picker: ^2.0.20
   pinput: ^2.2.31
+  get: ^4.6.5
+  google_sign_in: ^6.1.4
+  image_picker: ^1.0.1
 
 dev_dependencies:
   flutter_test:
