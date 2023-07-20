@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:test/pages/sign_in04.dart';
 
 class success_page extends StatelessWidget{
@@ -59,7 +60,8 @@ class success_page extends StatelessWidget{
                   minimumSize: Size(double.infinity, 45),
                 ),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=> sign_in()));
+                  //Navigator.push(context, MaterialPageRoute(builder: (context)=> sign_in()));
+                  Get.offAll(()=> sign_in());
                 },
                 child: Text(
                   'Go Sign In',
@@ -75,7 +77,7 @@ class success_page extends StatelessWidget{
               padding: const EdgeInsets.only(bottom: 20),
               child: GestureDetector(
                 onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>sign_in() ));
+                    // Navigator.push(context, MaterialPageRoute(builder: (context)=>sign_in() ));
 
                 },
                 child: RichText(
@@ -86,9 +88,9 @@ class success_page extends StatelessWidget{
                       fontWeight: FontWeight.w600,
                     ),
                     children: [
-                      TextSpan(text: 'Already have an account? '),
+                      TextSpan(text: ''),
                       TextSpan(
-                        text: 'Sign In',
+                        text: '',
                         style: TextStyle(
                           color: Color.fromRGBO(219, 185, 88, 1),
                         ),

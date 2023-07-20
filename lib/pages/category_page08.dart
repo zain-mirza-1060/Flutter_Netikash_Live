@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:test/screens/choices.dart';
 import 'package:test/screens/category.dart';
 import 'package:test/screens/category_product.dart';
@@ -6,15 +9,40 @@ import 'package:test/screens/side_bar.dart';
 import 'package:test/pages/profile_page29.dart';
 import 'package:test/pages/search_bar024.dart';
 
-class CategoryPage extends StatelessWidget {
+class CategoryPage extends StatefulWidget {
   const CategoryPage({super.key});
 
+  @override
+  State<CategoryPage> createState() => _CategoryPageState();
+}
+class _CategoryPageState extends State<CategoryPage> {
+  String? userid = FirebaseAuth.instance.currentUser?.uid;
+  String imageURL='';
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  Future<void> fetchUserData() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot = await FirebaseFirestore.instance
+          .collection('users').doc(userid).get();
+
+      if (userSnapshot.exists) {
+        String profileImageURL = userSnapshot.data()?['Profile Image'];
+        setState(() {
+          imageURL = profileImageURL;
+        });
+      }
+    } catch (error) {
+      Get.snackbar('Error Loading Data', error.toString());
+    }
+  }
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
-
-      String profile_image = 'assets/images/profile1.jpg';
       String notifications = '3';
 
     Choices choices1 = Choices(
@@ -59,41 +87,9 @@ class CategoryPage extends StatelessWidget {
       name: 'Groceries & Pets',
         selected:false
     );
-    CategoryProduct product1 = CategoryProduct(
-      product: 'assets/images/shirt2.jpg',
-      title: 'Men\'s Basic White Tee..',
-      newprice: '38.99',
-      oldprice: '50',
-      reviews: '180',
-      orders: '780'
-    );CategoryProduct product2 = CategoryProduct(
-      product: 'assets/images/shirt1.jpg',
-      title: 'Female denim Casual Shirt ...',
-      newprice: '20.99',
-      oldprice: '30',
-      reviews: '100',
-      orders: '200'
-    );CategoryProduct product3 = CategoryProduct(
-      product: 'assets/images/shirt3.jpg',
-      title: 'Hollister Blue Dress Shirt ...',
-      newprice: '79.99',
-      oldprice: '120',
-      reviews: '250',
-      orders: '90'
-    );CategoryProduct product4 = CategoryProduct(
-      product: 'assets/images/shirt4.jpg',
-      title: 'Men\'s Blue Dress Shirt..',
-      newprice: '29.99',
-      oldprice: '50',
-      reviews: '80',
-      orders: '100'
-    );
-    SideBar sidebar = SideBar(
-        profile: 'assets/images/profile1.jpg',
-        name:'Frank Nelson',
-        location: 'Barcelona, Venezuela'
-    );
     final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+    User? userid = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
         key:_scaffoldKey,
         backgroundColor: Colors.white,
@@ -148,7 +144,7 @@ class CategoryPage extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=> ProfilePage()));
+                          Get.to(()=> ProfilePage(userID: userid?.uid));
 
                         },
                         child: Container(
@@ -157,7 +153,7 @@ class CategoryPage extends StatelessWidget {
                           child: CircleAvatar(
                             radius: 20,
                             backgroundImage:
-                            AssetImage(profile_image),
+                            imageURL.isNotEmpty ? NetworkImage(imageURL) : null,
                           ),
                         ),
                       )
@@ -200,58 +196,46 @@ class CategoryPage extends StatelessWidget {
                   ShowChoices(choices:choices2),
                   ShowChoices(choices:choices3),
                   ShowChoices(choices:choices4),
-
                 ],
               ),
             ),
             Padding(
-                padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-                child: Row(
-                  // main row
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ShowCategoryProduct(categoryproduct: product1),
-                    SizedBox(width: 5),
-                    ShowCategoryProduct(categoryproduct: product2),
-                  ],
-                )),
-            Padding(
-                padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-                child: Row(
-                  // main row
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ShowCategoryProduct(categoryproduct: product3),
-                    SizedBox(width: 5),
-                    ShowCategoryProduct(categoryproduct: product4),
-                  ],
-                )),
-            Padding(
-                padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-                child: Row(
-                  // main row
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ShowCategoryProduct(categoryproduct: product1),
-                    SizedBox(width: 5),
-                    ShowCategoryProduct(categoryproduct: product2),
-                  ],
-                )),
-            Padding(
-                padding: const EdgeInsets.only(top: 10, left: 10, right: 10,bottom: 10),
-                child: Row(
-                  // main row
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ShowCategoryProduct(categoryproduct: product4),
-                    SizedBox(width: 5),
-                    ShowCategoryProduct(categoryproduct: product3),
-                  ],
-                )),
+              padding: EdgeInsets.all(10),
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance.collection('products').snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('error');
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Text('');
+                  }
+                  final products = snapshot.data?.docs;
+                  if (products == null || products.isEmpty) {
+                    return Text('error');
+                  }
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 0.8635,
+                    ),
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      final productId = products[index].id;
+                      return ShowCategoryProduct(productID: productId);
+                    },
+                  );
+                },
+              ),
+            ),
           ])
         ]),
       drawer: Drawer(
-        child: ShowSideBar(sidebar: sidebar,),
+        child: ShowSideBar(),
         width:220,
       )
     );

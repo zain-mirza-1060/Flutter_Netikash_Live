@@ -1,26 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:test/pages/category_page08.dart';
-import 'package:test/pages/streamer_profiles011.dart';
 import 'package:test/screens/side_button.dart';
 import 'package:test/pages/sign_in04.dart';
 import 'package:test/pages/bottom_nav.dart';
 import 'package:test/pages/my_order036.dart';
 import 'package:test/pages/setting_page040.dart';
-
 import '../pages/join_screen.dart';
 
-
-class SideBar{
-  final String profile;
-  final String name;
-  final String location;
-
-  SideBar({
-    required this.profile,
-    required this.name,
-    required this.location,
-  });
-}
 SideButton sidebutton2 = SideButton(
     icon: 'assets/icons/menu.png',
     text: 'Category',
@@ -46,11 +36,43 @@ SideButton sidebutton2 = SideButton(
     icon: 'assets/icons/log-out.png',
     text: 'Sign Out',
 );
-class ShowSideBar extends StatelessWidget {
-  final SideBar sidebar;
+class ShowSideBar extends StatefulWidget {
 
-  const ShowSideBar({required this.sidebar});
+  @override
+  State<ShowSideBar> createState() => _ShowSideBarState();
+}
 
+class _ShowSideBarState extends State<ShowSideBar> {
+  String? userID = FirebaseAuth.instance.currentUser?.uid;
+  String imageURL='';
+  String displayName= '';
+  String BillAddress= '';
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  Future<void> fetchUserData() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot = await FirebaseFirestore.instance
+          .collection('users').doc(userID).get();
+
+      if (userSnapshot.exists) {
+        String profileImageURL = userSnapshot.data()?['Profile Image'];
+        String fname = userSnapshot.data()?['First Name'];
+        String lname = userSnapshot.data()?['Last Name'];
+        String billAddress = userSnapshot.data()?['Billing Address'];
+        setState(() {
+          imageURL = profileImageURL;
+          displayName = fname + ' ' + lname;
+          BillAddress = billAddress;
+        });
+      }
+    } catch (error) {
+      // Get.snackbar('Error Loading Data', error.toString());
+    }
+  }
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -98,17 +120,17 @@ class ShowSideBar extends StatelessWidget {
                                   width: 65,
                                   child: CircleAvatar(
                                     radius: 20,
-                                    backgroundImage: AssetImage(sidebar.profile),
+                                    backgroundImage: imageURL.isNotEmpty ? NetworkImage(imageURL) : null,
                                   )),
                               SizedBox(height: 10),
-                              Text(sidebar.name,
+                              Text(displayName,
                                   style: TextStyle(
                                       fontSize: 27,
                                       color: Color(0xFF333333),
                                       fontWeight:
                                       FontWeight.w700
                                   )),
-                              Text(sidebar.location,
+                              Text(BillAddress,
                                   style: TextStyle(
                                       fontSize: 18,
                                       color: Color(0xFF333333),
@@ -226,8 +248,10 @@ class ShowSideBar extends StatelessWidget {
                               ),
                               SizedBox(height: 40),
                               GestureDetector(
-                                onTap: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=> sign_in()));
+                                onTap: ()async{
+                                  await GoogleSignIn().signOut();
+                                  FirebaseAuth.instance.signOut();
+                                  Get.offAll(()=> sign_in());
                                 },
                                   child: ShowSideButton(sideButton: sidebutton9)
                               ),
@@ -237,7 +261,7 @@ class ShowSideBar extends StatelessWidget {
 
                       ),
                     ),
-                  
+
                 ],
               ),
             ),

@@ -4,7 +4,6 @@ import 'package:test/pages/category_page08.dart';
 import 'package:test/pages/streamer_profiles011.dart';
 import 'package:test/pages/all_activity023.dart';
 import 'package:test/pages/my_order036.dart';
-import 'package:test/pages/upload_product099.dart';
 
 class BottomNav extends StatefulWidget {
   @override
@@ -31,8 +30,8 @@ class BottomNavState extends State<BottomNav> {
       const MainHomePage(),
       const CategoryPage(),
        streamer_profiles011(),
-      ProductUploadPage(),
-      ActivityPage(),
+       my_order036(),
+       ActivityPage(),
 
     ];
     return Scaffold(

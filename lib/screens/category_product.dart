@@ -1,27 +1,52 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class CategoryProduct{
-  final String product;
-  final String title;
-  final String newprice;
-  final String oldprice;
-  final String reviews;
-  final String orders;
+class ShowCategoryProduct extends StatefulWidget {
+  final String? productID;
 
-  CategoryProduct({
-    required this.product,
-    required this.title,
-    required this.newprice,
-    required this.oldprice,
-    required this.reviews,
-    required this.orders,
-  });
+  const ShowCategoryProduct({required this.productID});
+
+  @override
+  State<ShowCategoryProduct> createState() => _ShowCategoryProductState();
 }
-class ShowCategoryProduct extends StatelessWidget {
-  final CategoryProduct categoryproduct;
 
-  const ShowCategoryProduct({required this.categoryproduct});
+class _ShowCategoryProductState extends State<ShowCategoryProduct> {
+  List<String> productImage = [];
+  String newPrice='';
+  String title='';
+  String rating='';
+  String oldPrice='';
+  String ordered='';
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+  Future<void> fetchData() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot = await FirebaseFirestore.instance
+          .collection('products').doc(widget.productID).get();
 
+      if (userSnapshot.exists) {
+        List<String> list = convertListToStringArray(userSnapshot.data()?['imageUrls']);
+        String oldprice = userSnapshot.data()?['productPrice'];
+        String newprice = userSnapshot.data()?['discountPrice'];
+        String producttitle = userSnapshot.data()?['productName'];
+        String ratings = userSnapshot.data()?['ratings'];
+        String orders = userSnapshot.data()?['ordered'];
+        setState(() {
+          productImage = list;
+          newPrice = newprice;
+          oldPrice = oldprice;
+          ordered = orders;
+          title = producttitle;
+          rating = ratings;
+        });
+      }
+    } catch (error) {
+      // Get.snackbar('Error Loading Data', error.toString());
+    }
+  }
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -59,7 +84,8 @@ class ShowCategoryProduct extends StatelessWidget {
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10),
                   ),
-                  child: Image.asset(categoryproduct.product,
+                  child: Image.network(
+                  productImage[0],
                     fit: BoxFit.cover, // Optional image fit
                   ),
                 )),
@@ -85,7 +111,7 @@ class ShowCategoryProduct extends StatelessWidget {
                                   CrossAxisAlignment.center,
                                   children: [
                                     Flexible(
-                                      child: Text(categoryproduct.title,
+                                      child: Text(title,
                                           style: TextStyle(
                                               fontSize: font5,
                                               color:
@@ -107,7 +133,7 @@ class ShowCategoryProduct extends StatelessWidget {
                                     crossAxisAlignment:
                                     CrossAxisAlignment.center,
                                     children: [
-                                      Text('\$ '+categoryproduct.newprice,
+                                      Text('\$ '+newPrice,
                                           style: TextStyle(
                                               fontSize: font4,
                                               color:
@@ -123,7 +149,7 @@ class ShowCategoryProduct extends StatelessWidget {
                                     crossAxisAlignment:
                                     CrossAxisAlignment.center,
                                     children: [
-                                      Text('\$ '+categoryproduct.oldprice,
+                                      Text('\$ '+oldPrice,
                                           style: TextStyle(
                                             decoration: TextDecoration
                                                 .lineThrough,
@@ -158,7 +184,7 @@ class ShowCategoryProduct extends StatelessWidget {
                                     size: 13),
                                 SizedBox(width: 3),
                                 Text(
-                                  '('+categoryproduct.reviews+')',
+                                  '('+rating+')',
                                   style: TextStyle(
                                     fontSize: font1,
                                   ),
@@ -192,7 +218,7 @@ class ShowCategoryProduct extends StatelessWidget {
                                           color: Color(0xFFE8C435),
                                           fontWeight:
                                           FontWeight.bold)),
-                                  Text(categoryproduct.orders,
+                                  Text(ordered,
                                       style: TextStyle(
                                           fontSize: font3,
                                           color: Colors.black,
@@ -209,3 +235,13 @@ class ShowCategoryProduct extends StatelessWidget {
 
     );
   }}
+List<String> convertListToStringArray(List<dynamic> list) {
+  List<String> stringArray = [];
+  for (var element in list) {
+    stringArray.add(element.toString());
+  }
+  if(stringArray.isEmpty){
+    stringArray[0] = "#";
+  }
+  return stringArray;
+}

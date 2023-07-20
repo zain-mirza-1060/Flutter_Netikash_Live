@@ -1,9 +1,12 @@
-import 'package:country_picker/country_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:test/pages/forgot_password-1.dart';
 import 'package:test/pages/sign_up01.dart';
 import 'package:test/pages/bottom_nav.dart';
-
 
 class sign_in extends StatefulWidget{
   @override
@@ -11,24 +14,13 @@ class sign_in extends StatefulWidget{
 }
 
 class _sign_inState extends State<sign_in> {
-  TextEditingController signinPhoneCont = TextEditingController();
-
-  Country selectedCountry = Country(
-      phoneCode: "92",
-      countryCode: "PK",
-      e164Sc: 0,
-      geographic: true,
-      level: 1,
-      name: "Pakistan",
-      example: "Pakistan",
-      displayName: "Pakistan",
-      displayNameNoCountryCode: "PAK",
-      e164Key: "");
-
+  TextEditingController signinEmailCont = TextEditingController();
+  TextEditingController signinPassCont = TextEditingController();
+  bool checkbox = false;
+  bool hidden = false;
   @override
   Widget build(BuildContext context) {
-    bool _passwordVisible = false;
-    signinPhoneCont.selection= TextSelection.fromPosition(TextPosition(offset: signinPhoneCont.text.length));
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body:  Padding(
@@ -53,88 +45,28 @@ class _sign_inState extends State<sign_in> {
               ),
             ),
             SizedBox(height: 20),
-            Row(
-              children: [
-                Container(
-                  width: 120, // Adjust the width of the dropdown as needed
-                  height: 45,
-                  decoration: BoxDecoration(
-                    color: Color.fromRGBO(219, 185, 88, 1),
-                    borderRadius: BorderRadius.circular(5)
-                  ),
-                  
-                  child:Center(
-                    child: InkWell(
-                      onTap: (){
-                        showCountryPicker(
-                            context: context,
-                            countryListTheme: CountryListThemeData(
-                              bottomSheetHeight: 450
-                            ),
-                            onSelect: (value){
-                              setState(() {
-                               selectedCountry=value;
-                              });
-                            });
-                      },
-                      child: Text(
-                        "${selectedCountry.flagEmoji} + ${selectedCountry.phoneCode}",
-                        style: const TextStyle(
-                          fontSize: 22,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  )
-                  ),
-                SizedBox(width: 10), // Add padding between the dropdown and text field
-                Expanded(
-                  child: Container(
-                    height: 45,
-                    child: TextField(
-                      controller: signinPhoneCont,
-                      textAlign: TextAlign.start,
-                      keyboardType: TextInputType.number,
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      onChanged: (value){
-                        setState(() {
-                          signinPhoneCont.text = value;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Phone Number',
-                        suffixIcon: signinPhoneCont.text.length >9 ? Container(
-                          height: 30,
-                          width: 30,
-                          child: Icon(Icons.done , size :25 , color:Color.fromRGBO(219, 185, 88, 1) ),
-                        ) : null,
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: BorderSide(
+             Container(
+              height: 45,
+              child: TextField(
+                controller: signinEmailCont,
+                textAlignVertical: TextAlignVertical.center,
+                decoration: InputDecoration(
+                    hintText: 'Email',
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        borderSide: BorderSide(
                             color: Color.fromRGBO(219, 185, 88, 1),
-                            width: 2,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: BorderSide(
-                            color: Color.fromRGBO(219, 185, 88, 1),
-                            width: 3,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                  ),
+                            width: 2
+                        )),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide: BorderSide(
+                          color: Color.fromRGBO(219, 185, 88, 1),
+                          width: 3
+                      ),)
                 ),
-                  ]
-                ),
-
+              ),
+            ),
             SizedBox(height: 20),
             Container(
               height: 45,
@@ -147,19 +79,20 @@ class _sign_inState extends State<sign_in> {
                 borderRadius: BorderRadius.circular(5),
               ),
               child: TextField(
-                obscureText: !_passwordVisible,
+                obscureText: !hidden,
+                controller: signinPassCont,
                 textAlignVertical: TextAlignVertical.center,
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: 'Password',
                   suffixIcon: GestureDetector(
                     onTap: () {
-                      // setState(() {
-                      //   _passwordVisible = !_passwordVisible;
-                      // } as Null Function(bool _passwordVisible));
+                      setState(() {
+                        hidden=!hidden;
+                      });
                     },
                     child: Icon(
-                      _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                      hidden ? Icons.visibility : Icons.visibility_off,
                       color: Color.fromRGBO(219, 185, 88, 1),
                     ),
                   ),
@@ -170,9 +103,11 @@ class _sign_inState extends State<sign_in> {
             Row(
               children: [
                 Checkbox(
-                  value: false,
+                  value: checkbox,
                   onChanged: (value) {
-                    // Handle checkbox value change
+                    setState(() {
+                      checkbox = !checkbox;
+                    });
                   },
                 ),
                 Text(
@@ -182,10 +117,10 @@ class _sign_inState extends State<sign_in> {
                 Spacer(),
                 GestureDetector(
                   onTap: () {
-                    // Handle forget password click
+                    Get.to(()=>forgot_password());
                   },
                   child: Text(
-                    'Forget Password?',
+                    'Forgot Password?',
                     style: TextStyle(fontSize: 15),
                   ),
                 ),
@@ -203,9 +138,27 @@ class _sign_inState extends State<sign_in> {
                   padding: EdgeInsets.symmetric(horizontal: 20.0),
                   minimumSize: Size(double.infinity, 45),
                 ),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=> BottomNav()));
-                },
+                onPressed: checkbox ? () async{
+                  var email = signinEmailCont.text.trim();
+                  var Password = signinPassCont.text.trim();
+
+                  try {
+                    final User? firebaseUser =  (await FirebaseAuth.instance.signInWithEmailAndPassword(
+                        email: email,
+                        password: Password)
+                    ).user;
+                    if(firebaseUser != null){
+                      Get.offAll(()=> BottomNav());
+                    }
+                    else {
+                      Get.snackbar('Error Occurred', 'Check Your Email / Password');
+                    }
+                  }
+                  on FirebaseAuthException catch(e)
+                  {
+                    Get.snackbar('Error Occurred', e.message.toString());
+                  }
+                } : null,
                 child: Text(
                   'Sign In',
                   style: TextStyle(
@@ -246,23 +199,95 @@ class _sign_inState extends State<sign_in> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset(
-                  'assets/images/facebook.png',
-                  width: 25,
-                  height: 25,
+                // Image.asset(
+                //   'assets/images/facebook.png',
+                //   width: 25,
+                //   height: 25,
+                // ),
+                SizedBox(width: 20),
+                GestureDetector(
+                  onTap: ()async{
+                    GoogleSignInAccount? gUser;
+                    GoogleSignInAuthentication? gAuth;
+                    UserCredential? usercreds;
+                    try
+                    {
+                      gUser = await GoogleSignIn().signIn();
+                    } on FirebaseAuthException catch(e)
+                    {
+                      Get.snackbar('Error Occurred', e.message.toString());
+                    }
+                    try{
+                      gAuth = await gUser!.authentication;
+                    }on FirebaseAuthException catch(e)
+                    {
+                      Get.snackbar('Error Occurred', e.message.toString());
+                    }
+
+                    AuthCredential creds = GoogleAuthProvider.credential(
+                        accessToken: gAuth?.accessToken,
+                        idToken: gAuth?.idToken
+                    );
+
+                    try{
+                      usercreds = await FirebaseAuth.instance.signInWithCredential(creds);
+                      String? name = usercreds.user?.displayName;
+                      List<String> parts = name!.split(' ',);
+                      String? email = usercreds.user?.email;
+                      String? image = usercreds.user?.photoURL;
+                      User? userid = FirebaseAuth.instance.currentUser;
+                      try
+                      {
+                        await FirebaseFirestore.instance.collection("users").doc(userid!.uid).set({
+                          'First Name' : parts[0],
+                          'Last Name' : parts[1],
+                          'Phone Number' : '+923107867878',
+                          'Email': email,
+                          'Password' : '',
+                          'CreatedAt' : DateTime.now(),
+                          'User ID': userid.uid,
+                          'Profile Image': image,
+
+                          'User name' : 'default user',
+                          'Gender' : '',
+                          'Birthday' : '1/1/20',
+                          'Country' : 'Pakistan',
+                          'Language' : 'English',
+                          'Billing Address' : 'Lahore, Pakistan',
+                          'Shipping Address' : '165H, PIA-society',
+                          'Followers Count' : 1,
+
+                        });
+                      } on FirebaseAuthException catch(e)
+                      {
+                        Get.snackbar('Error Occurred', e.message.toString());
+                      }
+
+                    }on FirebaseAuthException catch(e)
+                    {
+                      Get.snackbar('Error Occurred', e.message.toString());
+                    }
+
+                    if(usercreds != null){
+                      Get.offAll(()=> BottomNav());
+                    }
+                    else{
+                      Get.snackbar('Error Occurred', 'Could not Login In');
+                    }
+
+                  },
+                  child: Image.asset(
+                    'assets/images/google.png',
+                    width: 30,
+                    height: 30,
+                  ),
                 ),
                 SizedBox(width: 20),
-                Image.asset(
-                  'assets/images/google.png',
-                  width: 25,
-                  height: 25,
-                ),
-                SizedBox(width: 20),
-                Image.asset(
-                  'assets/images/twitter.png',
-                  width: 25,
-                  height: 25,
-                ),
+                // Image.asset(
+                //   'assets/images/twitter.png',
+                //   width: 25,
+                //   height: 25,
+                // ),
               ],
             ),
             Expanded(flex: 1, child: SizedBox()),
@@ -271,8 +296,7 @@ class _sign_inState extends State<sign_in> {
                 padding: const EdgeInsets.only(bottom: 20),
                 child: GestureDetector(
                   onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>sign_up() ));
-
+                      Get.to(()=> sign_up());
                   },
                   child: RichText(
                     text: TextSpan(
@@ -303,4 +327,5 @@ class _sign_inState extends State<sign_in> {
 
   }
 }
+
 

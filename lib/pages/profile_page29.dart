@@ -1,35 +1,59 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:test/screens/profile_product.dart';
-ProfileProduct product1 = ProfileProduct(
-    product: 'assets/images/shirt2.jpg',
-    title: 'Men\' Basic White Cotton T..',
-    newprice: '38.99',
-    oldprice: '50',
-    reviews: '180',
-    orders: '780'
-);ProfileProduct product2 = ProfileProduct(
-    product: 'assets/images/shirt1.jpg',
-    title: 'Female denim Casual Shirt ...',
-    newprice: '20.99',
-    oldprice: '30',
-    reviews: '100',
-    orders: '200'
-);ProfileProduct product3 = ProfileProduct(
-    product: 'assets/images/shirt3.jpg',
-    title: 'Hollister Blue Dress Shirt ...',
-    newprice: '79.99',
-    oldprice: '120',
-    reviews: '250',
-    orders: '90'
-);ProfileProduct product4 = ProfileProduct(
-    product: 'assets/images/shirt4.jpg',
-    title: 'Men\'s Blue Dress Shirt..',
-    newprice: '29.99',
-    oldprice: '50',
-    reviews: '80',
-    orders: '100'
-);
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
+  final String? userID;
+  const ProfilePage({required this.userID});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String imageURL = '';
+  String displayName = '';
+  String userName = '';
+  int followerCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData(widget.userID);
+  }
+
+  Future<void> fetchData(String? userID) async {
+    try {
+      if (userID != null) {
+        DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(userID).get();
+
+        if (userSnapshot.exists) {
+          Map<String, dynamic>? userData = userSnapshot.data();
+          if (userData != null) {
+            String? profileImageURL = userData['Profile Image'];
+            int? profileFollowers = userData['Followers Count'];
+            String? fname = userData['First Name'];
+            String? lname = userData['Last Name'];
+            String? uname = userData['User name'];
+
+            setState(() {
+              imageURL = profileImageURL ?? '';
+              followerCount = profileFollowers ?? 0;
+              displayName = (fname ?? '') + ' ' + (lname ?? '');
+              userName = uname ?? '';
+            });
+          }
+        } else {
+          print('User profile does not exist');
+        }
+      }
+    } catch (error) {
+      print('Error fetching user data: $error');
+      Get.snackbar('Error Loading Data', error.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -65,9 +89,7 @@ class ProfilePage extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.more_horiz,color: Colors.black,size: 30,),
-            onPressed: () {
-              // Handle menu button press
-            },
+            onPressed: () {},
           ),
         ],
       ),
@@ -79,12 +101,12 @@ class ProfilePage extends StatelessWidget {
             padding: const EdgeInsets.only(top: 20),
             child: CircleAvatar(
               radius: 35,
-              backgroundImage: AssetImage('assets/images/profile1.jpg'),
+              backgroundImage:  imageURL.isNotEmpty ? NetworkImage(imageURL) : null,
             ),
           ),
           SizedBox(height: 10),
           Text(
-            'Frank Nelson',
+            displayName,
             style: TextStyle(
               fontSize: font4,
               fontWeight: FontWeight.bold,
@@ -92,11 +114,11 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
           Text(
-            'User: mary255',
+            userName,
             style: TextStyle(
               fontSize: font2,
               fontWeight: FontWeight.w400,
-              color: Colors.black87,
+              color: Colors.black,
             ),
           ),
           Container(
@@ -166,7 +188,7 @@ class ProfilePage extends StatelessWidget {
                 Column(
                   children: [
                     Text(
-                      '146k',
+                      followerCount.toString(),
                       style: TextStyle(
                         fontSize: font3,
                         fontWeight: FontWeight.bold,
@@ -226,50 +248,38 @@ class ProfilePage extends StatelessWidget {
                   ),
                   SizedBox(height: 20),
                   Padding(
-                      padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-                      child: Row(
-                        // main row
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ShowProfileProduct(profileproduct: product1),
-                          SizedBox(width: 5),
-                          ShowProfileProduct(profileproduct: product2),
-                        ],
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-                      child: Row(
-                        // main row
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ShowProfileProduct(profileproduct: product3),
-                          SizedBox(width: 5),
-                          ShowProfileProduct(profileproduct: product4),
-                        ],
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-                      child: Row(
-                        // main row
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ShowProfileProduct(profileproduct: product1),
-                          SizedBox(width: 5),
-                          ShowProfileProduct(profileproduct: product2),
-                        ],
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.only(top: 10, left: 10, right: 10,bottom: 10),
-                      child: Row(
-                        // main row
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ShowProfileProduct(profileproduct: product4),
-                          SizedBox(width: 5),
-                          ShowProfileProduct(profileproduct: product3),
-                        ],
-                      )),
-                  // Add more widgets to the list as needed
+                    padding: EdgeInsets.all(10),
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance.collection('products').snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Text('error');
+                        }
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return Text('');
+                        }
+                        final products = snapshot.data?.docs;
+                        if (products == null || products.isEmpty) {
+                          return Text('error');
+                        }
+                        return GridView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 0.8635,
+                          ),
+                          itemCount: products.length,
+                          itemBuilder: (context, index) {
+                            final productId = products[index].id;
+                            return ShowProfileProduct(productID: productId);
+                          },
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
