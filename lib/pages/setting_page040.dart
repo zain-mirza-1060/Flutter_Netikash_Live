@@ -88,7 +88,7 @@ class _setting_page040State extends State<setting_page040> {
               Country = country ?? '';
               Language = language ?? '';
 
-              imageURL = oldimageURL ?? '';
+              imageURL = oldimageURL ;
               if(genDer == 'male'){
                 selectedGender= Gender.male;
               }
@@ -143,9 +143,9 @@ class _setting_page040State extends State<setting_page040> {
       String lanGuage = Language;
       if(setNameCont.text.isNotEmpty && setNameCont.text.trim() != displayName  ){
         String text = setNameCont.text.trim();
-        parts = text!.split(' ',);
+        parts = text.split(' ',);
       }else{
-        parts = displayName!.split(' ',);
+        parts = displayName.split(' ',);
       }
       if(setuserNameCont.text.isNotEmpty && setuserNameCont.text.trim() != userName  ){
          username = setuserNameCont.text.trim();

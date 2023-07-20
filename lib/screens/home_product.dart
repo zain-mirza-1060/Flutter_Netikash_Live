@@ -1,26 +1,62 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class HomeProduct{
-  final String profile;
-  final String product;
-  final String name;
-  final String newprice;
-  final String oldprice;
-  final String count;
-
-  HomeProduct({
-    required this.profile,
-    required this.product,
-    required this.name,
-    required this.newprice,
-    required this.oldprice,
-    required this.count,
-  });
+class ShowHomeProduct extends StatefulWidget {
+  final String? productID;
+  const ShowHomeProduct({required this.productID});
+  @override
+  State<ShowHomeProduct> createState() => _ShowHomeProductState();
 }
-class ShowHomeProduct extends StatelessWidget {
-  final HomeProduct homeproduct;
+class _ShowHomeProductState extends State<ShowHomeProduct> {
+  List<String> productImage = [];
+  String newPrice='';
+  String oldPrice='';
+  String ordered='';
+  String userID='';
+  String userImage='';
+  String userName='';
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+  Future<void> fetchData() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot = await FirebaseFirestore.instance
+          .collection('products').doc(widget.productID).get();
 
-  const ShowHomeProduct({required this.homeproduct});
+      if (userSnapshot.exists) {
+        List<String> list = convertListToStringArray(userSnapshot.data()?['imageUrls']);
+        String oldprice = userSnapshot.data()?['productPrice'];
+        String newprice = userSnapshot.data()?['discountPrice'];
+        String orders = userSnapshot.data()?['ordered'];
+        String userid = userSnapshot.data()?['userID'];
+        setState(() {
+          productImage = list;
+          newPrice = newprice;
+          oldPrice = oldprice;
+          ordered = orders;
+          userID = userid;
+        });
+      }
+
+      DocumentSnapshot<Map<String, dynamic>> Snapshot = await FirebaseFirestore.instance
+          .collection('users').doc(userID).get();
+
+      if (userSnapshot.exists) {
+        String profileImageURL = Snapshot.data()?['Profile Image'];
+        String fname = Snapshot.data()?['First Name'];
+        String lname = Snapshot.data()?['Last Name'];
+        setState(() {
+          userImage = profileImageURL;
+          userName = fname + ' ' + lname;
+        });
+      }
+    } catch (error) {
+      // Get.snackbar('Error Loading Data', error.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +74,7 @@ class ShowHomeProduct extends StatelessWidget {
     double font5 = size5 * MediaQuery.of(context).textScaleFactor;
     return Card(
       elevation: 0,
-      margin: EdgeInsets.all(0.0),
+      margin: EdgeInsets.all(0),
       child:Container(          // 210 x 175
         height: screenHeight * 0.2408,
         width: screenWidth * 0.4458,
@@ -48,7 +84,6 @@ class ShowHomeProduct extends StatelessWidget {
               10.0), // Set the border radius
         ),
         child: Column(
-          // card ka coloumn
           children: [
             Container(
                 height: screenHeight * 0.2408 * 0.214,      // 45
@@ -61,7 +96,8 @@ class ShowHomeProduct extends StatelessWidget {
                         width: screenWidth * 0.4458 * 0.375,                //65
                         child: CircleAvatar(
                           radius: 10,
-                          backgroundImage: AssetImage(homeproduct.profile),
+                          backgroundImage: userImage.isNotEmpty ? NetworkImage(userImage ) : null,
+
                         )),
                     Container(
 
@@ -77,7 +113,7 @@ class ShowHomeProduct extends StatelessWidget {
                                 color: Color(0xFF535454),
                                 // fontWeight: FontWeight.bold
                               )),
-                          Text(homeproduct.name,
+                          Text(userName,
                               style: TextStyle(
                                   fontSize: font2,
                                   color: Colors.black,
@@ -97,7 +133,8 @@ class ShowHomeProduct extends StatelessWidget {
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10),
                   ),
-                  child: Image.asset(homeproduct.product,
+                  child: Image.network(
+                    productImage[0] ,
                     fit: BoxFit.cover, // Optional image fit
                   ),
                 )),
@@ -107,7 +144,7 @@ class ShowHomeProduct extends StatelessWidget {
                   children: [
                     Container(
                         height: screenHeight * 0.2408 * 0.165,   //35
-                    width: screenWidth * 0.4458 * 0.6,           //105
+                        width: screenWidth * 0.4458 * 0.6,           //105
                         child: Row(
                           mainAxisAlignment:
                           MainAxisAlignment.spaceEvenly,
@@ -120,7 +157,7 @@ class ShowHomeProduct extends StatelessWidget {
                               crossAxisAlignment:
                               CrossAxisAlignment.center,
                               children: [
-                                Text('\$'+homeproduct.newprice,
+                                Text('\$'+newPrice,
                                     style: TextStyle(
                                         fontSize: font5,
                                         color: Color(0xFFE8C435),
@@ -134,7 +171,7 @@ class ShowHomeProduct extends StatelessWidget {
                               crossAxisAlignment:
                               CrossAxisAlignment.center,
                               children: [
-                                Text('\$'+homeproduct.oldprice,
+                                Text('\$'+oldPrice,
                                     style: TextStyle(
                                       decoration: TextDecoration
                                           .lineThrough,
@@ -147,46 +184,59 @@ class ShowHomeProduct extends StatelessWidget {
                           ],
                         )),
                     Container(
-                      height: screenHeight * 0.2408 * 0.166,       //35
-                      width: screenWidth * 0.4458 * 0.4,        //70
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          bottomRight: Radius.circular(10),
-                          bottomLeft: Radius.circular(10),
+                        height: screenHeight * 0.2408 * 0.166,       //35
+                        width: screenWidth * 0.4458 * 0.4358,        //70
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              bottomRight: Radius.circular(10),
+                              bottomLeft: Radius.circular(10),
+                            )
+                        ),
+                        // child: Expanded(
+                        child: Align(
+                            alignment: Alignment.center,
+                            child: Column(
+                              mainAxisAlignment:
+                              MainAxisAlignment.center,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.center,
+                              children: [
+                                Text('Ordered',
+                                    style: TextStyle(
+                                        fontSize: font5,
+                                        color:
+                                        Color(0xFFE8C435),
+                                        fontWeight:
+                                        FontWeight.bold)),
+                                SizedBox(width: 10,),
+                                Text(ordered,
+                                    style: TextStyle(
+                                        fontSize: font4,
+                                        color: Colors.black,
+                                        fontWeight:
+                                        FontWeight.bold)),
+                              ],
+                            )
                         )
-                      ),
-                      child: Expanded(
-                          child: Align(
-                              alignment: Alignment.center,
-                              child: Column(
-                                mainAxisAlignment:
-                                MainAxisAlignment.center,
-                                crossAxisAlignment:
-                                CrossAxisAlignment.center,
-                                children: [
-                                  Text('Ordered',
-                                      style: TextStyle(
-                                          fontSize: font5,
-                                          color:
-                                          Color(0xFFE8C435),
-                                          fontWeight:
-                                          FontWeight.bold)),
-                                  SizedBox(width: 10,),
-                                  Text('(' + homeproduct.count + ')',
-                                      style: TextStyle(
-                                          fontSize: font4,
-                                          color: Colors.black,
-                                          fontWeight:
-                                          FontWeight.bold)),
-                                ],
-                              ))),
-                    )
+                    ),
+                    // )
                   ],
-                ))
+                )
+            )
           ],
         ),
       ),
     );
   }}
+List<String> convertListToStringArray(List<dynamic> list) {
+  List<String> stringArray = [];
+  for (var element in list) {
+    stringArray.add(element.toString());
+  }
+  if(stringArray.isEmpty){
+    stringArray[0] = "#";
+  }
+  return stringArray;
+}

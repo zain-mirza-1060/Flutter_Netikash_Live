@@ -1,26 +1,50 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class ProfileProduct{
-  final String product;
-  final String title;
-  final String newprice;
-  final String oldprice;
-  final String reviews;
-  final String orders;
+class ShowProfileProduct extends StatefulWidget {
+  final String? productID;
+  const ShowProfileProduct({required this.productID});
 
-  ProfileProduct({
-    required this.product,
-    required this.title,
-    required this.newprice,
-    required this.oldprice,
-    required this.reviews,
-    required this.orders,
-  });
+  @override
+  State<ShowProfileProduct> createState() => _ShowProfileProductState();
 }
-class ShowProfileProduct extends StatelessWidget {
-  final ProfileProduct profileproduct;
+class _ShowProfileProductState extends State<ShowProfileProduct> {
+  List<String> productImage = [];
+  String newPrice='';
+  String title='';
+  String rating='';
+  String oldPrice='';
+  String ordered='';
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+  Future<void> fetchData() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot = await FirebaseFirestore.instance
+          .collection('products').doc(widget.productID).get();
 
-  const ShowProfileProduct({required this.profileproduct});
+      if (userSnapshot.exists) {
+        List<String> list = convertListToStringArray(userSnapshot.data()?['imageUrls']);
+        String oldprice = userSnapshot.data()?['productPrice'];
+        String newprice = userSnapshot.data()?['discountPrice'];
+        String producttitle = userSnapshot.data()?['productName'];
+        String ratings = userSnapshot.data()?['ratings'];
+        String orders = userSnapshot.data()?['ordered'];
+        setState(() {
+          productImage = list;
+          newPrice = newprice;
+          oldPrice = oldprice;
+          ordered = orders;
+          title = producttitle;
+          rating = ratings;
+        });
+      }
+    } catch (error) {
+      // Get.snackbar('Error Loading Data', error.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +64,12 @@ class ShowProfileProduct extends StatelessWidget {
       elevation: 0,
       margin: EdgeInsets.all(0.0),
       child:Container(
-        height: screenHeight * 0.2408,  //210
-        width: screenWidth * 0.4458,    //175
+        height: screenHeight * 0.2408 ,  //210
+        width: screenWidth * 0.4458, //175
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0), // Set the border radius
+          borderRadius: BorderRadius.circular(10.0),
         ),
         child: Column(
-          // card ka coloumn
           children: [
             Container(
                 height: screenHeight * 0.2408 * 0.643,      // 135
@@ -56,7 +79,8 @@ class ShowProfileProduct extends StatelessWidget {
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10),
                   ),
-                  child: Image.asset(profileproduct.product,
+                  child: Image.network(
+                    productImage[0],
                     fit: BoxFit.cover, // Optional image fit
                   ),
                 )),
@@ -83,7 +107,7 @@ class ShowProfileProduct extends StatelessWidget {
                                   CrossAxisAlignment.center,
                                   children: [
                                     Flexible(
-                                      child: Text(profileproduct.title,
+                                      child: Text(title,
                                           style: TextStyle(
                                               fontSize: font5,
                                               color:
@@ -104,7 +128,7 @@ class ShowProfileProduct extends StatelessWidget {
                                     crossAxisAlignment:
                                     CrossAxisAlignment.center,
                                     children: [
-                                      Text('\$ '+ profileproduct.newprice,
+                                      Text('\$ '+ newPrice,
                                           style: TextStyle(
                                               fontSize: font4,
                                               color:
@@ -120,7 +144,7 @@ class ShowProfileProduct extends StatelessWidget {
                                     crossAxisAlignment:
                                     CrossAxisAlignment.center,
                                     children: [
-                                      Text('\$ '+profileproduct.oldprice,
+                                      Text('\$ '+oldPrice,
                                           style: TextStyle(
                                             decoration: TextDecoration
                                                 .lineThrough,
@@ -155,7 +179,7 @@ class ShowProfileProduct extends StatelessWidget {
                                     size: 13),
                                 SizedBox(width: 3),
                                 Text(
-                                  '('+profileproduct.reviews+')',
+                                  '('+rating+')',
                                   style: TextStyle(
                                     fontSize: font1,
                                   ),
@@ -165,8 +189,8 @@ class ShowProfileProduct extends StatelessWidget {
                           ),
                         )),
                     Container(
-                      height: 75,
-                      width: 70,
+                      height: screenHeight * 0.2408 * 0.356,  //75
+                      width: screenWidth * 0.4458 * 0.418,
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.only(
@@ -189,7 +213,7 @@ class ShowProfileProduct extends StatelessWidget {
                                           color: Color(0xFFE8C435),
                                           fontWeight:
                                           FontWeight.bold)),
-                                  Text(profileproduct.orders,
+                                  Text(ordered,
                                       style: TextStyle(
                                           fontSize: font3,
                                           color: Colors.black,
@@ -206,3 +230,13 @@ class ShowProfileProduct extends StatelessWidget {
 
     );
   }}
+List<String> convertListToStringArray(List<dynamic> list) {
+  List<String> stringArray = [];
+  for (var element in list) {
+    stringArray.add(element.toString());
+  }
+  if(stringArray.isEmpty){
+    stringArray[0] = "#";
+  }
+  return stringArray;
+}

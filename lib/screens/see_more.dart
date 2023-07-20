@@ -1,16 +1,8 @@
 import 'package:flutter/material.dart';
 
-class SeeMore{
-  final String name;
-
-  SeeMore({
-    required this.name,
-  });
-}
 class ShowSeeMore extends StatelessWidget {
-  final SeeMore seemore;
-
-  const ShowSeeMore({required this.seemore});
+  final String title;
+  const ShowSeeMore({required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +15,7 @@ class ShowSeeMore extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(seemore.name,
+            Text(title,
                 style: TextStyle(
                   fontSize: 23,
                   color: Colors.black,
