@@ -5,11 +5,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:videosdk/videosdk.dart';
-
-
-
 import '../participant_tile.dart';
 import 'meeting_controls.dart';
+
+final _commentController = TextEditingController();
 
 class ILSSpeakerView extends StatefulWidget {
   final Room room;
@@ -27,6 +26,7 @@ class _ILSSpeakerViewState extends State<ILSSpeakerView> {
 
   Map<String, Participant> participants = {};
 
+  late DatabaseReference _commentsRef;
 
   @override
   void initState() {
@@ -42,6 +42,7 @@ class _ILSSpeakerViewState extends State<ILSSpeakerView> {
       }
     });
     hlsState = widget.room.hlsState;
+    _commentsRef = FirebaseDatabase.instance.reference().child('comments');
   }
 
   @override
@@ -102,6 +103,74 @@ class _ILSSpeakerViewState extends State<ILSSpeakerView> {
                     participant: participants.values.elementAt(index));
               },
               itemCount: participants.length,
+            ),
+          ),
+          Expanded(
+            child: Column(
+              children: [
+                Expanded(
+                  child: StreamBuilder<DatabaseEvent>(
+                    // Create a stream to listen for live comments updates
+                    stream: _commentsRef.onValue,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        final commentsSnapshot = snapshot.data!;
+                        final commentsMap = commentsSnapshot.snapshot.value as Map<dynamic, dynamic>;
+                        final List<Widget> commentWidgets = [];
+
+                        commentsMap.forEach((key, value) {
+                          // Display the comments in a ListView or any other way you prefer
+                          commentWidgets.add(
+                            ListTile(
+                              title: Text(value['comment'], style: TextStyle(color: Colors.white),),
+                              subtitle: Text(value['user'], style: TextStyle(color: Colors.white),),
+                            ),
+                          );
+                        });
+
+                        return ListView(
+                          children: commentWidgets,
+                        );
+                      } else {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                    },
+                  ),
+                ),
+                // Widget to submit new comments
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _commentController,
+                          style: TextStyle(
+                            color: Colors.blue, // Set your desired text color here
+                          ),
+                          decoration: const InputDecoration(
+                            hintText: 'Enter your comment...',
+                            hintStyle: TextStyle(
+                              color: Colors.grey, // Set your desired hint text color here
+                            ),
+
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.send),
+                        onPressed: () {
+                          final userComment = _commentController.text.trim();
+                          if (userComment.isNotEmpty) {
+                            _postComment(userComment);
+                            _commentController.clear();
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           //Rending the meeting Controls
@@ -184,6 +253,13 @@ class _ILSSpeakerViewState extends State<ILSSpeakerView> {
         );
       },
     );
+  }
+  void _postComment(String comment) {
+    final newCommentRef = _commentsRef.push();
+    newCommentRef.set({
+      'user': 'Host', // Change this to the actual username or "Host" as required
+      'comment': comment,
+    });
   }
 }
 
